@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -9,6 +11,10 @@ import com.qualcomm.robotcore.hardware.Gyroscope;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
@@ -65,21 +71,17 @@ public class MyFIRSTJavaOpMode extends LinearOpMode {
         }
 
     }
-        private DistanceSensor distance;
-
-        public void init(HardwareMap hwMap) {
-            distance = hwMap.get(DistanceSensor.class, "sensor distance");
-        }
-
-        return distance.getDistance(DistanceUnit.CM);
-
-
-
-
-    }
-
-
-
 }
 
 
+public class Sensors {
+    private DistanceSensor distance;
+
+    public void init(HardwareMap hwMap) {
+        distance = hwMap.get(DistanceSensor.class, "sensorDistance");
+    }
+
+    public double getDistance() {
+        return distance.getDistance(DistanceUnit.CM);
+    }
+}
