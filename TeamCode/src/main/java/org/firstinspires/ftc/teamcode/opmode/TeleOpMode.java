@@ -1,41 +1,15 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.opmode;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DigitalChannel;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
-import com.qualcomm.robotcore.hardware.Gyroscope;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-
-
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;import com.qualcomm.robotcore.hardware.DistanceSensor;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;import com.qualcomm.robotcore.hardware.DistanceSensor;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;import com.qualcomm.robotcore.hardware.DistanceSensor;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;import com.qualcomm.robotcore.hardware.DistanceSensor;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 @TeleOp
-public class MyFIRSTJavaOpMode extends LinearOpMode {
+public class TeleOpMode extends LinearOpMode {
     //private Gyroscope imu;
     private DcMotor motorTest;
     /* private DigitalChannel digitalTouch;
@@ -47,12 +21,12 @@ public class MyFIRSTJavaOpMode extends LinearOpMode {
     @Override
     public void runOpMode() {
         //imu = hardwareMap.get(Gyroscope.class, "imu");
-        motorTest = hardwareMap.get(DcMotor.class, "motor0");
+        //motorTest = hardwareMap.get(DcMotor.class, "motor0");
         //digitalTouch = hardwareMap.get(DigitalChannel.class, "digitalTouch");
         //sensorColorRange = hardwareMap.get(DistanceSensor.class, "sensorColorRange");
         //servoTest = hardwareMap.get(Servo.class, "servoTest");
-
         telemetry.addData("Status", "Initialized");
+
         telemetry.update();
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
@@ -63,7 +37,7 @@ public class MyFIRSTJavaOpMode extends LinearOpMode {
             tgtPower = -this.gamepad1.left_stick_y;
             motorTest.setPower(tgtPower);
             telemetry.addData("Target Power", tgtPower);
-            telemetry.addData("Motor Power", motorTest.getPower());
+            //telemetry.addData("Motor Power", motorTest.getPower());
             telemetry.addData("Status", "Running");
             telemetry.update();
 
@@ -73,7 +47,7 @@ public class MyFIRSTJavaOpMode extends LinearOpMode {
     }
 }
 
-
+/*
 public class Sensors {
     private DistanceSensor distance;
 
@@ -85,3 +59,5 @@ public class Sensors {
         return distance.getDistance(DistanceUnit.CM);
     }
 }
+
+ */
