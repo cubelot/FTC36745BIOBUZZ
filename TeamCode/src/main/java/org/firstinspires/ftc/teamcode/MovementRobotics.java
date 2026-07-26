@@ -3,10 +3,9 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 @TeleOp(name="Movement", group="Linear OpMode")
-public class Movement extends LinearOpMode {
+public class MovementRobotics extends LinearOpMode {
 
     @Override
     public void runOpMode() {
@@ -39,9 +38,6 @@ public class Movement extends LinearOpMode {
             double RFPower = y - x - s * rx;
             double LBPower = y - x + s * rx;
             double RBPower = y + x - s * rx;
-
-
-
 
         }
 

@@ -1,54 +1,67 @@
 package org.firstinspires.ftc.teamcode.opmode;
 
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 
 @TeleOp
 public class TeleOpMode extends LinearOpMode {
-    //private Gyroscope imu;
-    private DcMotor motor0;
-    /* private DigitalChannel digitalTouch;
-    private DistanceSensor sensorColorRange;
-    private Servo servoTest;
 
-     */
-// motor0 = cable0
+    private DcMotor leftFront;
+    private DcMotor rightFront;
+    private DcMotor leftBack;
+    private DcMotor rightBack;
+
     @Override
     public void runOpMode() {
-        //imu = hardwareMap.get(Gyroscope.class, "imu");
-        motor0 = hardwareMap.get(DcMotor.class, "motor0");
-        //digitalTouch = hardwareMap.get(DigitalChannel.class, "digitalTouch");
-        //sensorColorRange = hardwareMap.get(DistanceSensor.class, "sensorColorRange");
-        //servoTest = hardwareMap.get(Servo.class, "servoTest");
-        telemetry.addData("Status", "Initialized");
+        leftFront = hardwareMap.get(DcMotor.class, "leftFront");
+        rightFront = hardwareMap.get(DcMotor.class, "rightFront");
+        leftBack = hardwareMap.get(DcMotor.class, "leftBack");
+        rightBack = hardwareMap.get(DcMotor.class, "rightBack");
 
+        leftFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        // Ensures positive power moves the robot forward
+        leftFront.setDirection(DcMotor.Direction.REVERSE);
+        leftBack.setDirection(DcMotor.Direction.REVERSE);
+        rightFront.setDirection(DcMotor.Direction.FORWARD);
+        rightBack.setDirection(DcMotor.Direction.FORWARD);
+
+        telemetry.addData("Status", "Initialized");
         telemetry.update();
-        // Wait for the game to start (driver presses PLAY)
+
         waitForStart();
 
-        // run until the end of the match (driver presses STOP)
-        double tgtPower = 0;
         while (opModeIsActive()) {
-            tgtPower = -this.gamepad1.left_stick_y;
-            motor0.setPower(tgtPower);
-            telemetry.addData("Target Power", tgtPower);
-            telemetry.addData("Motor Power", motor0.getPower());
+            double y = -this.gamepad1.left_stick_y;
+            double x = this.gamepad1.left_stick_x;
+            double rx = this.gamepad1.right_stick_x;
+            double s = 1; // sensitivity setting for rotation
+
+            double leftFrontPower = y + x + s * rx;
+            double rightFrontPower = y - x - s * rx;
+            double leftBackPower = y - x + s * rx;
+            double rightBackPower = y + x - s * rx;
+
+            leftFront.setPower(leftFrontPower);
+            rightFront.setPower(rightFrontPower);
+            leftBack.setPower(leftBackPower);
+            rightBack.setPower(rightBackPower);
+
             telemetry.addData("Status", "Running");
+            telemetry.addData("LF Power", leftFrontPower);
+            telemetry.addData("RF Power", rightFrontPower);
+            telemetry.addData("LB Power", leftBackPower);
+            telemetry.addData("RB Power", rightBackPower);
             telemetry.update();
-
-
         }
-
     }
 }
 
-
- /*
+/*
 public class Sensors {
     private DistanceSensor distance;
 
@@ -62,3 +75,5 @@ public class Sensors {
 }
 
  */
+
+
