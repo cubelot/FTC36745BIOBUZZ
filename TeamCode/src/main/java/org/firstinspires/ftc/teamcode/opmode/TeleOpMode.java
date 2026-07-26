@@ -39,12 +39,11 @@ public class TeleOpMode extends LinearOpMode {
             double y = -this.gamepad1.left_stick_y;
             double x = this.gamepad1.left_stick_x;
             double rx = this.gamepad1.right_stick_x;
-            double s = 1; // sensitivity setting for rotation
 
-            double leftFrontPower = y + x + s * rx;
-            double rightFrontPower = y - x - s * rx;
-            double leftBackPower = y - x + s * rx;
-            double rightBackPower = y + x - s * rx;
+            double leftFrontPower = y + x + rx;
+            double rightFrontPower = y - x - rx;
+            double leftBackPower = y - x + rx;
+            double rightBackPower = y + x - rx;
 
             leftFront.setPower(leftFrontPower);
             rightFront.setPower(rightFrontPower);
