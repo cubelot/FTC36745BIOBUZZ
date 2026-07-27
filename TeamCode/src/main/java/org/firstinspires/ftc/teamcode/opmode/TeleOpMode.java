@@ -40,6 +40,11 @@ public class TeleOpMode extends LinearOpMode {
 
         waitForStart();
 
+        leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
         while (opModeIsActive()) {
             double y = -this.gamepad1.left_stick_y;
             double x = this.gamepad1.left_stick_x;
@@ -54,11 +59,6 @@ public class TeleOpMode extends LinearOpMode {
             rightFront.setPower(rightFrontPower);
             leftBack.setPower(leftBackPower);
             rightBack.setPower(rightBackPower);
-
-            leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
             telemetry.addData("Status", "Running");
             telemetry.addData("LF Power", leftFrontPower);
