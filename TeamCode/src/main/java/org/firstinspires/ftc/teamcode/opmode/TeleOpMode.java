@@ -1,8 +1,11 @@
 package org.firstinspires.ftc.teamcode.opmode;
 
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.IMU;
+
 
 @TeleOp
 public class TeleOpMode extends LinearOpMode {
@@ -11,6 +14,8 @@ public class TeleOpMode extends LinearOpMode {
     private DcMotor rightFront;
     private DcMotor leftBack;
     private DcMotor rightBack;
+
+    IMU imu;
 
     @Override
     public void runOpMode() {
@@ -50,12 +55,28 @@ public class TeleOpMode extends LinearOpMode {
             leftBack.setPower(leftBackPower);
             rightBack.setPower(rightBackPower);
 
+            leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
             telemetry.addData("Status", "Running");
             telemetry.addData("LF Power", leftFrontPower);
             telemetry.addData("RF Power", rightFrontPower);
             telemetry.addData("LB Power", leftBackPower);
             telemetry.addData("RB Power", rightBackPower);
             telemetry.update();
+
+            imu = hardwareMap.get(IMU.class, "imu");
+            IMU.Parameters parameters = new IMU.Parameters(
+                new RevHubOrientationOnRobot(
+                    RevHubOrientationOnRobot.LogoFacingDirection.UP,
+                    RevHubOrientationOnRobot.UsbFacingDirection.FORWARD
+                )
+            );
+            imu.initialize(parameters);
+
+            waitForStart();
         }
     }
 }
