@@ -4,7 +4,7 @@ import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.IMU;
+
 
 
 @TeleOp
@@ -15,14 +15,14 @@ public class TeleOpMode extends LinearOpMode {
     private DcMotor leftBack;
     private DcMotor rightBack;
 
-    IMU imu;
+    //GoBildaPinpointDriver pinpoint;
 
     @Override
     public void runOpMode() {
-        leftFront = hardwareMap.get(DcMotor.class, "leftFront");
-        rightFront = hardwareMap.get(DcMotor.class, "rightFront");
-        leftBack = hardwareMap.get(DcMotor.class, "leftBack");
-        rightBack = hardwareMap.get(DcMotor.class, "rightBack");
+        leftFront = hardwareMap.get(DcMotor.class, "lf");
+        rightFront = hardwareMap.get(DcMotor.class, "rf");
+        leftBack = hardwareMap.get(DcMotor.class, "lb");
+        rightBack = hardwareMap.get(DcMotor.class, "rb");
 
         leftFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -66,16 +66,18 @@ public class TeleOpMode extends LinearOpMode {
             telemetry.addData("LB Power", leftBackPower);
             telemetry.addData("RB Power", rightBackPower);
             telemetry.update();
+            // replaced imu with pinpoint because imu is default and does not work with goBilda pinpoint
 
-            imu = hardwareMap.get(IMU.class, "imu");
-            IMU.Parameters parameters = new IMU.Parameters(
+            /*
+            pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "GoBildaPinpointDriver");
+            GoBildaPinpointDriver.Parameters parameters = new GoBildaPinpointDriver.Parameters(
                 new RevHubOrientationOnRobot(
                     RevHubOrientationOnRobot.LogoFacingDirection.UP,
                     RevHubOrientationOnRobot.UsbFacingDirection.FORWARD
                 )
             );
-            imu.initialize(parameters);
-
+            pinpoint.initialize(parameters);
+            */
             waitForStart();
         }
     }
