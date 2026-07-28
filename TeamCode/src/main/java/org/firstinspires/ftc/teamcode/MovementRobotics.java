@@ -29,9 +29,9 @@ public class MovementRobotics extends LinearOpMode {
 
         while (opModeIsActive()) {
 
-            double y = -this.gamepad1.left_stick_y;
-            double x = this.gamepad1.left_stick_x;
-            double rx = this.gamepad1.right_stick_x;
+            double y = gamepad1.left_stick_y;
+            double x = gamepad1.left_stick_x;
+            double rx = gamepad1.right_stick_x;
             double s = 1; //sensitivity setting for rotation
 
             double LFPower = y + x + s * rx;
