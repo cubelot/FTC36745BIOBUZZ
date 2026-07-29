@@ -1,6 +1,5 @@
-package org.firstinspires.ftc.teamcode.opmode;
-
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+package org.firstinspires.ftc.teamcode.TeleOp;
+//What is the point of this file
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -14,8 +13,6 @@ public class TeleOpMode extends LinearOpMode {
     private DcMotor rightFront;
     private DcMotor leftBack;
     private DcMotor rightBack;
-
-    //GoBildaPinpointDriver pinpoint;
 
     @Override
     public void runOpMode() {
@@ -67,35 +64,11 @@ public class TeleOpMode extends LinearOpMode {
             telemetry.addData("RB Power", rightBackPower);
             telemetry.update();
             // replaced imu with pinpoint because imu is default and does not work with goBilda pinpoint
-
-            /*
-            pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "GoBildaPinpointDriver");
-            GoBildaPinpointDriver.Parameters parameters = new GoBildaPinpointDriver.Parameters(
-                new RevHubOrientationOnRobot(
-                    RevHubOrientationOnRobot.LogoFacingDirection.UP,
-                    RevHubOrientationOnRobot.UsbFacingDirection.FORWARD
-                )
-            );
-            pinpoint.initialize(parameters);
-            */
+            //oyu have to assign imu in unOp mode and put orientation identifiers (see FieldCentric TeleOp);
             waitForStart();
         }
     }
 }
 
-/*
-public class Sensors {
-    private DistanceSensor distance;
-
-    public void init(HardwareMap hwMap) {
-        distance = hwMap.get(DistanceSensor.class, "sensorDistance");
-    }
-
-    public double getDistance() {
-        return distance.getDistance(DistanceUnit.CM);
-    }
-}
-
- */
 
 
