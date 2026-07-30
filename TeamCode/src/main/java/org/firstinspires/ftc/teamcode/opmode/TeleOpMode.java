@@ -3,6 +3,10 @@ package org.firstinspires.ftc.teamcode.opmode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.IMU;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 
 @TeleOp
 public class TeleOpMode extends LinearOpMode {
@@ -11,6 +15,7 @@ public class TeleOpMode extends LinearOpMode {
     private DcMotor rightFront;
     private DcMotor leftBack;
     private DcMotor rightBack;
+    private IMU imu;
 
     @Override
     public void runOpMode() {
@@ -33,18 +38,27 @@ public class TeleOpMode extends LinearOpMode {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
 
+        imu =hardwareMap.get(IMU.class, "imu");
+        imu.initialize(new IMU.Parameters(
+                new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.UP, RevHubOrientationOnRobot.UsbFacingDirection.FORWARD)
+        ));
+        imu.resetYaw(); // This makes sure that the vehicle aligns itself with the driver.
+
         waitForStart();
 
         while (opModeIsActive()) {
+            double angle = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
             double y = -this.gamepad1.left_stick_y;
             double x = this.gamepad1.left_stick_x;
             double rx = this.gamepad1.right_stick_x;
+            double rotx = x*Math.cos(-angle)-y*Math.sin(-angle);
+            double roty = x*Math.sin(-angle)+y*Math.cos(-angle);
             double s = 1; // sensitivity setting for rotation
 
-            double leftFrontPower = y + x + s * rx;
-            double rightFrontPower = y - x - s * rx;
-            double leftBackPower = y - x + s * rx;
-            double rightBackPower = y + x - s * rx;
+            double leftFrontPower = roty + rotx + s * rx;
+            double rightFrontPower = roty - rotx - s * rx;
+            double leftBackPower = roty - rotx + s * rx;
+            double rightBackPower = roty + rotx - s * rx;
 
             leftFront.setPower(leftFrontPower);
             rightFront.setPower(rightFrontPower);
@@ -60,20 +74,3 @@ public class TeleOpMode extends LinearOpMode {
         }
     }
 }
-
-/*
-public class Sensors {
-    private DistanceSensor distance;
-
-    public void init(HardwareMap hwMap) {
-        distance = hwMap.get(DistanceSensor.class, "sensorDistance");
-    }
-
-    public double getDistance() {
-        return distance.getDistance(DistanceUnit.CM);
-    }
-}
-
- */
-
-
