@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 
 @TeleOp
-public class TeleOpMode extends LinearOpMode {
+public class MecanumTeleOp extends LinearOpMode {
 
     private DcMotor leftFront;
     private DcMotor rightFront;
@@ -26,6 +26,7 @@ public class TeleOpMode extends LinearOpMode {
         leftBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+
         // Ensures positive power moves the robot forward
         leftFront.setDirection(DcMotor.Direction.REVERSE);
         leftBack.setDirection(DcMotor.Direction.REVERSE);
@@ -36,6 +37,8 @@ public class TeleOpMode extends LinearOpMode {
         telemetry.update();
 
         waitForStart();
+
+        if(isStopRequested()) return;
 
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -63,9 +66,18 @@ public class TeleOpMode extends LinearOpMode {
             telemetry.addData("LB Power", leftBackPower);
             telemetry.addData("RB Power", rightBackPower);
             telemetry.update();
-            // replaced imu with pinpoint because imu is default and does not work with goBilda pinpoint
-            //oyu have to assign imu in unOp mode and put orientation identifiers (see FieldCentric TeleOp);
-            waitForStart();
+
+            /*
+            - you do not need to know motor power.
+            - by comp, we will also need two mecanum teleOp files, "TeleOpSingleController" for just one controller
+              (specifically for the software testing) and just "TeleOp" for two controllers (the one we will actually be running at comp)
+            - you don't need to copy the exact steps from the tutorial, make it easier for yourselves
+            - use gm0.org if you need a refresher, do not use it for field centric as the hardware we have is different from the one in gm0
+            - pinpoint is NOT an alternative to imu, pinpoint is for tracking the robot pos and heading,
+              while imu is for tracking heading and gyro (only time when switching is useful is when detecting heading,
+              where pinpoint is superior) */
+
+
         }
     }
 }

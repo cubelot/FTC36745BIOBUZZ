@@ -39,6 +39,7 @@ public class MovementRobotics extends LinearOpMode {
             double LBPower = y - x + s * rx;
             double RBPower = y + x - s * rx;
 
+
         }
 
     }
