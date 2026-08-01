@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Sensors;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -38,6 +38,7 @@ public class MovementRobotics extends LinearOpMode {
             double RFPower = y - x - s * rx;
             double LBPower = y - x + s * rx;
             double RBPower = y + x - s * rx;
+
 
         }
 

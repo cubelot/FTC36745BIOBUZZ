@@ -1,20 +1,17 @@
-package org.firstinspires.ftc.teamcode.opmode;
-
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+package org.firstinspires.ftc.teamcode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 
+
 @TeleOp
-public class TeleOpMode extends LinearOpMode {
+public class MecanumTeleOp extends LinearOpMode {
 
     private DcMotor leftFront;
     private DcMotor rightFront;
     private DcMotor leftBack;
     private DcMotor rightBack;
-
-    //GoBildaPinpointDriver pinpoint;
 
     @Override
     public void runOpMode() {
@@ -28,6 +25,7 @@ public class TeleOpMode extends LinearOpMode {
         leftBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+
         // Ensures positive power moves the robot forward
         leftFront.setDirection(DcMotor.Direction.REVERSE);
         leftBack.setDirection(DcMotor.Direction.REVERSE);
@@ -39,15 +37,17 @@ public class TeleOpMode extends LinearOpMode {
 
         waitForStart();
 
+        if(isStopRequested()) return;
+
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         while (opModeIsActive()) {
-            double y = -this.gamepad1.left_stick_y;
-            double x = this.gamepad1.left_stick_x;
-            double rx = this.gamepad1.right_stick_x;
+            double y = gamepad1.left_stick_y;
+            double x = gamepad1.left_stick_x;
+            double rx = gamepad1.right_stick_x;
 
             double leftFrontPower = y + x + rx;
             double rightFrontPower = y - x - rx;
@@ -65,36 +65,21 @@ public class TeleOpMode extends LinearOpMode {
             telemetry.addData("LB Power", leftBackPower);
             telemetry.addData("RB Power", rightBackPower);
             telemetry.update();
-            // replaced imu with pinpoint because imu is default and does not work with goBilda pinpoint
 
             /*
-            pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "GoBildaPinpointDriver");
-            GoBildaPinpointDriver.Parameters parameters = new GoBildaPinpointDriver.Parameters(
-                new RevHubOrientationOnRobot(
-                    RevHubOrientationOnRobot.LogoFacingDirection.UP,
-                    RevHubOrientationOnRobot.UsbFacingDirection.FORWARD
-                )
-            );
-            pinpoint.initialize(parameters);
-            */
-            waitForStart();
+            - you do not need to know motor power.
+            - by comp, we will also need two mecanum teleOp files, "TeleOpSingleController" for just one controller
+              (specifically for the software testing) and just "TeleOp" for two controllers (the one we will actually be running at comp)
+            - you don't need to copy the exact steps from the tutorial, make it easier for yourselves
+            - use gm0.org if you need a refresher, do not use it for field centric as the hardware we have is different from the one in gm0
+            - pinpoint is NOT an alternative to imu, pinpoint is for tracking the robot pos and heading,
+              while imu is for tracking heading and gyro (only time when switching is useful is when detecting heading,
+              where pinpoint is superior) */
+
+
         }
     }
 }
 
-/*
-public class Sensors {
-    private DistanceSensor distance;
-
-    public void init(HardwareMap hwMap) {
-        distance = hwMap.get(DistanceSensor.class, "sensorDistance");
-    }
-
-    public double getDistance() {
-        return distance.getDistance(DistanceUnit.CM);
-    }
-}
-
- */
 
 
