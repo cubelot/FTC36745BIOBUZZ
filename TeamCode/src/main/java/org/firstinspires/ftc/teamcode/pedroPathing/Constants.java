@@ -31,7 +31,10 @@ public class Constants {
             .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD)
             .xVelocity(64.48004390686518)
             .yVelocity(55.82799524021899);
-    public static PathConstraints pathConstraints = new PathConstraints(0.99, 100, 1, 1);
+    public static PathConstraints pathConstraints = new PathConstraints(0.99,
+            100,
+            1,
+            1);
     public static PinpointConstants localizerConstants = new PinpointConstants()
             .forwardPodY(-3)
             .strafePodX(3.5)

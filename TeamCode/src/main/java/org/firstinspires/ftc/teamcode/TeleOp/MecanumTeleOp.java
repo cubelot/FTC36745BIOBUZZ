@@ -8,29 +8,13 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 @TeleOp
 public class MecanumTeleOp extends LinearOpMode {
 
-    private DcMotor leftFront;
-    private DcMotor rightFront;
-    private DcMotor leftBack;
+    private DcMotor lf;
+    private DcMotor rf;
+    private DcMotor lb;
     private DcMotor rightBack;
 
     @Override
     public void runOpMode() {
-        leftFront = hardwareMap.get(DcMotor.class, "lf");
-        rightFront = hardwareMap.get(DcMotor.class, "rf");
-        leftBack = hardwareMap.get(DcMotor.class, "lb");
-        rightBack = hardwareMap.get(DcMotor.class, "rb");
-
-        leftFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        leftBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-
-        // Ensures positive power moves the robot forward
-        leftFront.setDirection(DcMotor.Direction.REVERSE);
-        leftBack.setDirection(DcMotor.Direction.REVERSE);
-        rightFront.setDirection(DcMotor.Direction.FORWARD);
-        rightBack.setDirection(DcMotor.Direction.FORWARD);
 
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -39,31 +23,16 @@ public class MecanumTeleOp extends LinearOpMode {
 
         if(isStopRequested()) return;
 
-        leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
         while (opModeIsActive()) {
-            double y = gamepad1.left_stick_y;
-            double x = gamepad1.left_stick_x;
-            double rx = gamepad1.right_stick_x;
-
-            double leftFrontPower = y + x + rx;
-            double rightFrontPower = y - x - rx;
-            double leftBackPower = y - x + rx;
-            double rightBackPower = y + x - rx;
-
-            leftFront.setPower(leftFrontPower);
-            rightFront.setPower(rightFrontPower);
-            leftBack.setPower(leftBackPower);
-            rightBack.setPower(rightBackPower);
 
             telemetry.addData("Status", "Running");
+
+            /*
             telemetry.addData("LF Power", leftFrontPower);
             telemetry.addData("RF Power", rightFrontPower);
             telemetry.addData("LB Power", leftBackPower);
             telemetry.addData("RB Power", rightBackPower);
+             */
             telemetry.update();
 
             /*
