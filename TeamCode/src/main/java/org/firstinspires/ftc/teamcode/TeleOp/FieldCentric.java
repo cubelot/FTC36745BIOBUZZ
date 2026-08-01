@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
@@ -22,7 +23,6 @@ public class FieldCentric extends LinearOpMode {
     //pinpoint
     private GoBildaPinpointDriver odo;
 
-
     @Override
     public void runOpMode(){
         leftFront = hardwareMap.get(DcMotor.class, "lf");
@@ -34,7 +34,6 @@ public class FieldCentric extends LinearOpMode {
         odo.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
         odo.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.REVERSED, GoBildaPinpointDriver.EncoderDirection.REVERSED);
         odo.resetPosAndIMU();
-
 
         leftBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         leftFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -59,12 +58,34 @@ public class FieldCentric extends LinearOpMode {
         while(opModeIsActive()) {
             double y = -gamepad1.left_stick_y;
             double x = gamepad1.left_stick_x;
+            double ry = -gamepad1.right_stick_y;
             double rx = gamepad1.right_stick_x;
 
-            double lfPower = y + x + rx;
-            double lbPower = y - x + rx;
-            double rfPower = y - x - rx;
-            double rbPower = y + x - rx;
+            odo.update();
+            double heading = odo.getHeading(AngleUnit.RADIANS);
+            double theta = odo.getHeading(AngleUnit.DEGREES);
+            if (theta < 0) {
+                theta = 360 + theta;}
+            double pointer = Math.toDegrees(Math.atan2(ry,rx));
+            if (pointer < 0) {
+                pointer = 360 + pointer;}
+            double difference = pointer - theta;
+            difference = difference - 360.0 * Math.round(difference / 360.0);
+            double magnitude = Math.hypot(rx,ry);
+            double r;
+            if (magnitude>0.2) {
+                r = Math.signum(difference); //signum basically takes the sign only
+            } else {
+                r=0;
+            }
+
+            double rotx = x*Math.cos(-heading)-y*Math.sin(-heading);
+            double roty = x*Math.sin(-heading)+y*Math.cos(-heading);
+
+            double lfPower = roty + rotx + r;
+            double lbPower = roty - rotx + r;
+            double rfPower = roty - rotx - r;
+            double rbPower = roty + rotx - r;
 
             leftFront.setPower(lfPower);
             leftBack.setPower(lbPower);
