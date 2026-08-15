@@ -45,7 +45,7 @@ public class MecanumTeleOp extends LinearOpMode {
         rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         while (opModeIsActive()) {
-            double y = gamepad1.left_stick_y;
+            /*double y = gamepad1.left_stick_y;
             double x = gamepad1.left_stick_x;
             double rx = gamepad1.right_stick_x;
 
@@ -57,7 +57,7 @@ public class MecanumTeleOp extends LinearOpMode {
             leftFront.setPower(leftFrontPower);
             rightFront.setPower(rightFrontPower);
             leftBack.setPower(leftBackPower);
-            rightBack.setPower(rightBackPower);
+            rightBack.setPower(rightBackPower);*/
 
             telemetry.addData("Status", "Running");
             telemetry.addData("LF Power", leftFrontPower);
