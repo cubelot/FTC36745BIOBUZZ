@@ -98,6 +98,11 @@ public class Tuning extends SelectableOpMode {
             follower = Constants.createFollower(hardwareMap);
         }
 
+        // Tells Panels' FieldManager to use Pedro Pathing's coordinate system/offsets.
+        // Without this call, drawRobot()/drawPath() packets are sent but rendered in the
+        // wrong coordinate frame, so the robot never appears on the Panels field view.
+        Drawing.init();
+
         follower.setStartingPose(new Pose());
 
         poseHistory = follower.getPoseHistory();
@@ -110,6 +115,9 @@ public class Tuning extends SelectableOpMode {
 
     public static void drawCurrent() {
         try {
+            if (follower.getCurrentPath() != null) {
+                Drawing.drawPath(follower.getCurrentPath(), Drawing.robotLook);
+            }
             Drawing.drawRobot(follower.getPose());
             Drawing.sendPacket();
         } catch (Exception e) {
@@ -1655,7 +1663,7 @@ class OffsetsTuner extends OpMode {
 class Drawing {
     public static final double ROBOT_RADIUS = 9; // woah
     private static final FieldManager panelsField = PanelsField.INSTANCE.getField();
-    private static final Style robotLook = new Style(
+    static final Style robotLook = new Style(
             "", "#3F51B5", 0.0
     );
     private static final Style historyLook = new Style(
