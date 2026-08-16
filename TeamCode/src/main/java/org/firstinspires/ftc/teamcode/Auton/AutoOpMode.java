@@ -1,9 +1,22 @@
 package org.firstinspires.ftc.teamcode.Auton;
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.pedropathing.follower.Follower;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.pedropathing.util.Timer;
+import com.pedropathing.geometry.BezierCurve;
+import com.pedropathing.geometry.BezierLine;
 
-public class AutoOpMode extends LinearOpMode{
+@TeleOp
+public class AutoOpMode extends OpMode {
+    private Follower follower;
+    private Timer pathTimer, opModeTimer;
+
     @Override
-    public void runOpMode() {
+    public void init() {
+    }
+
+    @Override
+    public void loop() {
     }
 }

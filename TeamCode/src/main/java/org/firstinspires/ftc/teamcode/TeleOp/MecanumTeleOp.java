@@ -57,14 +57,14 @@ public class MecanumTeleOp extends LinearOpMode {
             leftFront.setPower(leftFrontPower);
             rightFront.setPower(rightFrontPower);
             leftBack.setPower(leftBackPower);
-            rightBack.setPower(rightBackPower);*/
+            rightBack.setPower(rightBackPower);
 
             telemetry.addData("Status", "Running");
             telemetry.addData("LF Power", leftFrontPower);
             telemetry.addData("RF Power", rightFrontPower);
             telemetry.addData("LB Power", leftBackPower);
             telemetry.addData("RB Power", rightBackPower);
-            telemetry.update();
+            telemetry.update();*/
 
             /*
             - you do not need to know motor power.
