@@ -67,7 +67,7 @@ public class FieldCentric extends LinearOpMode {
             mathematically using a certain heading, which tells you the angle difference between
             the current location versus the desired location via rotation by assuming the current
             location is at 0 radians everytime. */
-            double theta = odo.getHeading(AngleUnit.DEGREES); //Same as heading but in degrees, used for the following code
+            double theta = odo.getHeading(AngleUnit.DEGREES)-90; //Same as heading but in degrees, used for the following code
             if (theta < 0) {
                 theta = 360 + theta;} //makes theta range from the built-in -180 - 180 range to 0 - 360 range
             double pointer = Math.toDegrees(Math.atan2 (ry,rx)); //Converts right joystick motion into degrees (vector),
