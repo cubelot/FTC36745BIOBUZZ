@@ -75,7 +75,7 @@ public class FieldCentric extends LinearOpMode {
             if (pointer < 0) {
                 pointer = 360 + pointer;} //0-360 range like theta
             double difference = pointer - theta; //Difference checks the closest way to get to your location
-            //difference = difference - 360.0 * Math.round(difference / 360.0); //Rounds so that it doesn't get stuck between -180 to 180
+            difference = difference - 360.0 * Math.round(difference / 360.0); //Rounds so that it doesn't get stuck between -180 to 180
             double magnitude = Math.hypot(rx,ry); /* Checks how much has the joystick
             been offset from the positon where you are not pushing the joystick*/
             double r; // Makes the rate of turning based on where the desired rotation location is
