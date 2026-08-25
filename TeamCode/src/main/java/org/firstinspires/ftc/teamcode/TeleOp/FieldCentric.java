@@ -63,30 +63,36 @@ public class FieldCentric extends LinearOpMode {
 
             odo.update();
             double heading = odo.getHeading(AngleUnit.RADIANS);
-            double theta = odo.getHeading(AngleUnit.DEGREES);
+            /* Used later for properly rotating Cartesian coordinates (normal coordinate plane)
+            mathematically using a certain heading, which tells you the angle difference between
+            the current location versus the desired location via rotation by assuming the current
+            location is at 0 radians everytime. */
+            double theta = odo.getHeading(AngleUnit.DEGREES); //Same as heading but in degrees, used for the following code
             if (theta < 0) {
-                theta = 360 + theta;}
-            double pointer = Math.toDegrees(Math.atan2(ry,rx));
+                theta = 360 + theta;} //makes theta range from the built-in -180 - 180 range to 0 - 360 range
+            double pointer = Math.toDegrees(Math.atan2 (ry,rx)); //Converts right joystick motion into degrees (vector),
+            // atan2 is the same as taking the arctan for two arguments (inputs).
             if (pointer < 0) {
-                pointer = 360 + pointer;}
-            double difference = pointer - theta;
-            difference = difference - 360.0 * Math.round(difference / 360.0);
-            double magnitude = Math.hypot(rx,ry);
-            double r;
-            if (magnitude>0.2) {
-                r = Math.signum(difference); //signum basically takes the sign only
+                pointer = 360 + pointer;} //0-360 range like theta
+            double difference = pointer - theta; //Difference checks the closest way to get to your location
+            //difference = difference - 360.0 * Math.round(difference / 360.0); //Rounds so that it doesn't get stuck between -180 to 180
+            double magnitude = Math.hypot(rx,ry); /* Checks how much has the joystick
+            been offset from the positon where you are not pushing the joystick*/
+            double r; // Makes the rate of turning based on where the desired rotation location is
+            if (magnitude>0.2) { //Checks if we are actually actively trying to turn it
+                r = Math.signum(difference); //Signum basically takes the sign only, so it can directly go to the directed result
             } else {
-                r=0;
-            }
+                r=0;}
+            //The above code basically turns the robot to the direction the right controller is pointing, so it stays relative to the driver
 
             double rotx = x*Math.cos(-heading)-y*Math.sin(-heading);
             double roty = x*Math.sin(-heading)+y*Math.cos(-heading);
-
+            //Math behind rotation and changing the x and y coordinates accordingly
             double lfPower = roty + rotx + r;
             double lbPower = roty - rotx + r;
             double rfPower = roty - rotx - r;
             double rbPower = roty + rotx - r;
-
+            //Mecanum power formulas, it just works
             leftFront.setPower(lfPower);
             leftBack.setPower(lbPower);
             rightFront.setPower(rfPower);
