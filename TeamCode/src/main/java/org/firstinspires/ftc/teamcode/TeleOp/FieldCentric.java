@@ -75,14 +75,16 @@ public class FieldCentric extends LinearOpMode {
             if (pointer < 0) {
                 pointer = 360 + pointer;} //0-360 range like theta
             double difference = pointer - theta; //Difference checks the closest way to get to your location
-            difference = difference - 360.0 * Math.round(difference / 360.0); //Rounds so that it doesn't get stuck between -180 to 180
+            difference = difference - 360.0 * Math.round(difference / 360.0); //Makes difference negative so that it can go -90 turn instead of 270 for instance.
             double magnitude = Math.hypot(rx,ry); /* Checks how much has the joystick
             been offset from the positon where you are not pushing the joystick*/
-            double r; // Makes the rate of turning based on where the desired rotation location is
+            double r = 0; // Makes the rate of turning based on where the desired rotation location is
             if (magnitude>0.2) { //Checks if we are actually actively trying to turn it
                 r = Math.signum(difference); //Signum basically takes the sign only, so it can directly go to the directed result
+              if (difference<2 && (difference>-2)) {
+                r = 0.5;
             } else {
-                r=0;}
+                r = 0;}}
             //The above code basically turns the robot to the direction the right controller is pointing, so it stays relative to the driver
 
             double rotx = x*Math.cos(-heading)-y*Math.sin(-heading);
