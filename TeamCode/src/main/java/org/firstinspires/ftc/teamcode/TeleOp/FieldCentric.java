@@ -60,6 +60,7 @@ public class FieldCentric extends LinearOpMode {
             double x = gamepad1.left_stick_x;
             double ry = -gamepad1.right_stick_y;
             double rx = gamepad1.right_stick_x;
+            boolean a = gamepad1.aWasPressed();
 
             odo.update();
             double heading = odo.getHeading(AngleUnit.RADIANS);
@@ -79,12 +80,14 @@ public class FieldCentric extends LinearOpMode {
             double magnitude = Math.hypot(rx,ry); /* Checks how much has the joystick
             been offset from the positon where you are not pushing the joystick*/
             double r = 0; // Makes the rate of turning based on where the desired rotation location is
-            if (magnitude>0.2) { //Checks if we are actually actively trying to turn it
-                r = Math.signum(difference); //Signum basically takes the sign only, so it can directly go to the directed result
-              if (difference<2 && (difference>-2)) {
-                r = 0.5;
+            if (a) {
+                if (magnitude > 0.2) { //Checks if we are actually actively trying to turn it
+                    if (difference < 2 && (difference > -2)) {
+                        r = 0.5; //Prevents overshoot
+                    } else {
+                        r = Math.signum(difference);}} //Signum basically takes the sign only, so it can directly go to the directed result
             } else {
-                r = 0;}}
+                r=rx;}
             //The above code basically turns the robot to the direction the right controller is pointing, so it stays relative to the driver
 
             double rotx = x*Math.cos(-heading)-y*Math.sin(-heading);
