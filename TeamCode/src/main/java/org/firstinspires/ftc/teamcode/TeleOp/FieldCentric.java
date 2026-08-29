@@ -60,7 +60,17 @@ public class FieldCentric extends LinearOpMode {
             double x = gamepad1.left_stick_x;
             double ry = -gamepad1.right_stick_y;
             double rx = gamepad1.right_stick_x;
-            boolean a = gamepad1.aWasPressed();
+            boolean padA = gamepad1.a;
+            boolean prevA = false;
+            boolean stateA = false;
+            if(padA != prevA){
+                if (padA) {
+                    stateA = true;
+                } else {
+                    stateA = false;
+                }
+                prevA = padA;
+            }
 
             odo.update();
             double heading = odo.getHeading(AngleUnit.RADIANS);
@@ -80,7 +90,7 @@ public class FieldCentric extends LinearOpMode {
             double magnitude = Math.hypot(rx,ry); /* Checks how much has the joystick
             been offset from the positon where you are not pushing the joystick*/
             double r = 0; // Makes the rate of turning based on where the desired rotation location is
-            if (a) {
+            if (stateA) {
                 if (magnitude > 0.2) { //Checks if we are actually actively trying to turn it
                     if (difference < 2 && (difference > -2)) {
                         r = 0.5; //Prevents overshoot
@@ -104,6 +114,9 @@ public class FieldCentric extends LinearOpMode {
             rightBack.setPower(rbPower);
 
             telemetry.addLine("its running");
+            telemetry.addData("stateA: ", stateA);
+            telemetry.update();
+
             telemetry.update();
         }
 
