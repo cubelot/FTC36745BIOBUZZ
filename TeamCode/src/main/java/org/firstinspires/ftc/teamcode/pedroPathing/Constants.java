@@ -28,6 +28,7 @@ public class Constants {
             //.drivePIDFCoefficients(new FilteredPIDFCoefficients(0.55, 0, 0.0001, 0.6, 0.02))
             .predictiveBrakingCoefficients(new PredictiveBrakingCoefficients(0.03, 0.5977134135828005, 0.0013007973229804634))
             .centripetalScaling(0)
+            .predictiveBrakingCoefficients(new PredictiveBrakingCoefficients(0.1, 0.06053625401957515, 0.0012211495893950704));
             ;
 
 
