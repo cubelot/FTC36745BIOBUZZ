@@ -54,6 +54,8 @@ public class FieldCentric extends LinearOpMode {
         waitForStart();
         if(isStopRequested()) return;
 
+        boolean prevA = false;
+        boolean stateA = false;
 
         while(opModeIsActive()) {
             double y = -gamepad1.left_stick_y;
@@ -61,17 +63,15 @@ public class FieldCentric extends LinearOpMode {
             double ry = -gamepad1.right_stick_y;
             double rx = gamepad1.right_stick_x;
             boolean padA = gamepad1.a;
-            boolean prevA = false;
-            boolean stateA = false;
             if(padA != prevA){
-                if (padA) {
+                if (padA == true) {
                     stateA = true;
                 } else {
                     stateA = false;
                 }
-                prevA = padA;
-            }
 
+            }
+            prevA = padA;
             odo.update();
             double heading = odo.getHeading(AngleUnit.RADIANS);
             /* Used later for properly rotating Cartesian coordinates (normal coordinate plane)
@@ -92,8 +92,8 @@ public class FieldCentric extends LinearOpMode {
             double r = 0; // Makes the rate of turning based on where the desired rotation location is
             if (stateA) {
                 if (magnitude > 0.2) { //Checks if we are actually actively trying to turn it
-                    if (difference < 2 && (difference > -2)) {
-                        r = 0.5; //Prevents overshoot
+                    if (difference < 10 && (difference > -10)) {
+                        r = 0.25; //Prevents overshoot
                     } else {
                         r = Math.signum(difference);}} //Signum basically takes the sign only, so it can directly go to the directed result
             } else {
