@@ -40,7 +40,6 @@ public class FieldCentric extends LinearOpMode {
         rightBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
         leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
 
@@ -70,8 +69,8 @@ public class FieldCentric extends LinearOpMode {
                     stateA = false;
                 }
             }
-
             prevA = padA;
+
             odo.update();
             double heading = odo.getHeading(AngleUnit.RADIANS);
             /* Used later for properly rotating Cartesian coordinates (normal coordinate plane)
@@ -92,10 +91,7 @@ public class FieldCentric extends LinearOpMode {
             double r = 0; // Makes the rate of turning based on where the desired rotation location is
             if (stateA) { //Advanced mode
                 if (magnitude > 0.2) { //Checks if we are actually actively trying to turn it
-                    if (difference < 10 && (difference > -10)) {
-                        r = 0.1*(difference); //Prevents overshoot
-                    } else {
-                        r = Math.signum(difference);}} //Signum basically takes the sign only, so it can directly go to the directed result
+                    r = Math.round(difference/180);} //Signum basically takes the sign only, so it can directly go to the directed result
             } else {
                 r=rx;} //Basic mode
             //The above code basically turns the robot to the direction the right controller is pointing, so it stays relative to the driver
