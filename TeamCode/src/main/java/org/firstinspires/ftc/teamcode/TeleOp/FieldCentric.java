@@ -64,13 +64,13 @@ public class FieldCentric extends LinearOpMode {
             double rx = gamepad1.right_stick_x;
             boolean padA = gamepad1.a;
             if(padA != prevA){
-                if (padA == true) {
+                if (padA) {
                     stateA = true;
                 } else {
                     stateA = false;
                 }
-
             }
+
             prevA = padA;
             odo.update();
             double heading = odo.getHeading(AngleUnit.RADIANS);
@@ -93,7 +93,7 @@ public class FieldCentric extends LinearOpMode {
             if (stateA) {
                 if (magnitude > 0.2) { //Checks if we are actually actively trying to turn it
                     if (difference < 10 && (difference > -10)) {
-                        r = 0.25; //Prevents overshoot
+                        r = 0.01*(difference); //Prevents overshoot
                     } else {
                         r = Math.signum(difference);}} //Signum basically takes the sign only, so it can directly go to the directed result
             } else {
