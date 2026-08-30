@@ -103,6 +103,8 @@ public class Tuning extends SelectableOpMode {
         // wrong coordinate frame, so the robot never appears on the Panels field view.
         Drawing.init();
 
+        Drawing.init();
+
         follower.setStartingPose(new Pose());
 
         poseHistory = follower.getPoseHistory();
