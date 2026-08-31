@@ -38,7 +38,6 @@ public class TeleOp extends LinearOpMode {
         rightBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
         leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
 
@@ -62,14 +61,14 @@ public class TeleOp extends LinearOpMode {
             double rx = gamepad1.right_stick_x;
             boolean padA = gamepad1.a;
             if(padA != prevA){
-                if (padA == true) {
+                if (padA) {
                     stateA = true;
                 } else {
                     stateA = false;
                 }
-
             }
             prevA = padA;
+
             odo.update();
             double heading = odo.getHeading(AngleUnit.RADIANS);
             /* Used later for properly rotating Cartesian coordinates (normal coordinate plane)
@@ -88,14 +87,11 @@ public class TeleOp extends LinearOpMode {
             double magnitude = Math.hypot(rx,ry); /* Checks how much has the joystick
             been offset from the positon where you are not pushing the joystick*/
             double r = 0; // Makes the rate of turning based on where the desired rotation location is
-            if (stateA) {
+            if (stateA) { //Advanced mode
                 if (magnitude > 0.2) { //Checks if we are actually actively trying to turn it
-                    if (difference < 10 && (difference > -10)) {
-                        r = 0.25; //Prevents overshoot
-                    } else {
-                        r = Math.signum(difference);}} //Signum basically takes the sign only, so it can directly go to the directed result
+                    r = Math.round(difference/180);} //Signum basically takes the sign only, so it can directly go to the directed result
             } else {
-                r=rx;}
+                r=rx;} //Basic mode
             //The above code basically turns the robot to the direction the right controller is pointing, so it stays relative to the driver
 
             double rotx = x*Math.cos(-heading)-y*Math.sin(-heading);
