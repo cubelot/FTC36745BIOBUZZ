@@ -42,7 +42,7 @@ public class BasicAuton extends OpMode {
     /*
     In general, Pedro pathing works by making a bunch of paths going from position 1 to 2, position 2 to 3, etc
      */
-
+    /dd
 
     /*
     Poses are set position for your robot to go. first two arguments are x and y, then it's the angle (in radians, 0.5 is forward.
