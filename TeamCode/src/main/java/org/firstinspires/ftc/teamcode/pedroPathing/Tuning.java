@@ -1663,7 +1663,7 @@ class OffsetsTuner extends OpMode {
  * @version 1.1, 5/19/2025
  */
 class Drawing {
-    public static final double ROBOT_RADIUS = 9; // woah
+    public static final double ROBOT_RADIUS = 9; // Sets up the area that the robot takes up in inches
     private static final FieldManager panelsField = PanelsField.INSTANCE.getField();
     static final Style robotLook = new Style(
             "", "#3F51B5", 0.0
@@ -1683,12 +1683,12 @@ class Drawing {
      *
      * @param follower Pedro Follower instance.
      */
-    public static void drawDebug(Follower follower) {
+    public static void drawDebug(Follower follower) { //This section "debugs" by making sure that all the assumed grid values it makes follows Panels.
         if (follower.getCurrentPath() != null) {
             drawPath(follower.getCurrentPath(), robotLook);
             Pose closestPoint = follower.getPointFromPath(follower.getCurrentPath().getClosestPointTValue());
             drawRobot(new Pose(closestPoint.getX(), closestPoint.getY(), follower.getCurrentPath().getHeadingGoal(follower.getCurrentPath().getClosestPointTValue())), robotLook);
-        }
+        } //Adds the closest point (assigns a specific value on the grid), and its current path to where it will go next, so this is exactly where the path is being "drawn" in Panels.
         drawPoseHistory(follower.getPoseHistory(), historyLook);
         drawRobot(follower.getPose(), historyLook);
         sendPacket();
@@ -1701,7 +1701,7 @@ class Drawing {
      * @param style the parameters used to draw the robot with
      */
     public static void drawRobot(Pose pose, Style style) {
-        if (pose == null || Double.isNaN(pose.getX()) || Double.isNaN(pose.getY()) || Double.isNaN(pose.getHeading())) {
+        if (pose == null || Double.isNaN(pose.getX()) || Double.isNaN(pose.getY()) || Double.isNaN(pose.getHeading())) { //Essentially if there is no current pose set
             return;
         }
         panelsField.setStyle(style);
