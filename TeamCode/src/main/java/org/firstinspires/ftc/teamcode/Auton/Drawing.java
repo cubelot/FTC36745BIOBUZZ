@@ -11,7 +11,7 @@ import com.pedropathing.paths.PathChain;
 import com.pedropathing.util.PoseHistory;
 
 public class Drawing {
-    public static final double ROBOT_RADIUS = 9; // woah
+    public static final double ROBOT_RADIUS = 9; // Shows how much area the robot takes is in inches
     private static final FieldManager panelsField = PanelsField.INSTANCE.getField();
     static final Style robotLook = new Style(
             "", "#3F51B5", 0.0
@@ -36,7 +36,7 @@ public class Drawing {
             drawPath(follower.getCurrentPath(), robotLook);
             Pose closestPoint = follower.getPointFromPath(follower.getCurrentPath().getClosestPointTValue());
             drawRobot(new Pose(closestPoint.getX(), closestPoint.getY(), follower.getCurrentPath().getHeadingGoal(follower.getCurrentPath().getClosestPointTValue())), robotLook);
-        }
+        } //Maps the robot to a (closest) point on the panels grid and gets information on its current path, and where it will go next.
         drawPoseHistory(follower.getPoseHistory(), historyLook);
         drawRobot(follower.getPose(), historyLook);
         sendPacket();
@@ -49,18 +49,18 @@ public class Drawing {
      * @param style the parameters used to draw the robot with
      */
     public static void drawRobot(Pose pose, Style style) {
-        if (pose == null || Double.isNaN(pose.getX()) || Double.isNaN(pose.getY()) || Double.isNaN(pose.getHeading())) {
+        if (pose == null || Double.isNaN(pose.getX()) || Double.isNaN(pose.getY()) || Double.isNaN(pose.getHeading())) { //Basically when there is no current pose
             return;
         }
         panelsField.setStyle(style);
         panelsField.moveCursor(pose.getX(), pose.getY());
         panelsField.circle(ROBOT_RADIUS);
         Vector v = pose.getHeadingAsUnitVector();
-        v.setMagnitude(v.getMagnitude() * ROBOT_RADIUS);
+        v.setMagnitude(v.getMagnitude() * ROBOT_RADIUS); //Makes a vector v showing its current heading
         double x1 = pose.getX() + v.getXComponent() / 2, y1 = pose.getY() + v.getYComponent() / 2;
-        double x2 = pose.getX() + v.getXComponent(), y2 = pose.getY() + v.getYComponent();
+        double x2 = pose.getX() + v.getXComponent(), y2 = pose.getY() + v.getYComponent(); //This and the above statement uses the current positon and the heading's x value, so that we can see where it will go next (because momentum).
         panelsField.setStyle(style);
-        panelsField.moveCursor(x1, y1);
+        panelsField.moveCursor(x1, y1); //moveCursor basically is the pen without drawing anything. By using heading/2, the cursor is "inside" the robot, minimizing false predictions.
         panelsField.line(x2, y2);
     }
     /**
@@ -129,5 +129,5 @@ public class Drawing {
      */
     public static void sendPacket() {
         panelsField.update();
-    }
+    } //Updates to panels
 }
