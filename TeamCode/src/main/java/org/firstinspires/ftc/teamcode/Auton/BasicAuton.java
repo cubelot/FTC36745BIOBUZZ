@@ -39,8 +39,9 @@ public class BasicAuton extends OpMode {
     //enum is a bunch of constants
     public enum PathState {
         //always gives a start position and end position
-        DRIVE_STARTPOS_LOAD_POS,
-        LOAD_POS_DRIVE_STARTPOS
+        MOVE_RIGHT,
+        MOVE_UP,
+        MOVE_BACK
     }
     /*
     In general, Pedro pathing works by making a bunch of paths going from position 1 to 2, position 2 to 3, etc
@@ -53,38 +54,51 @@ public class BasicAuton extends OpMode {
      */
 
     PathState pathState;
-    private final Pose centerPose = new Pose(72,72, 0.5*Math.PI);
-    private final Pose grabPose = new Pose(120, 60, 0.5*Math.PI);
+    private final Pose centerPose = new Pose(72,72, Math.toRadians(90));
+    private final Pose rightPose = new Pose(120, 72, Math.toRadians(0));
+    private final Pose endPose = new Pose(120,120, Math.toRadians(270));
 
 
 
-    private PathChain centertograb;
-    private PathChain grabtocenter;
+    private PathChain moveright;
+    private PathChain moveup;
+    private PathChain moveback;
     // above is the chain, the code for auton travel, (each path must need its own pathchain)
 
     public void buildPaths() {
         //enter coordinates for start then end
-        centertograb = follower.pathBuilder()
-                .addPath(new BezierLine(centerPose, grabPose))  //added line movement(Bezier line)
-                .setLinearHeadingInterpolation(centerPose.getHeading(), grabPose.getHeading())
+        moveup = follower.pathBuilder()
+                .addPath(new BezierLine(centerPose, rightPose))  //added line movement(Bezier line)
+                .setLinearHeadingInterpolation(centerPose.getHeading(), rightPose.getHeading())
                 .build();
-        grabtocenter = follower.pathBuilder()
-                .addPath(new BezierLine(grabPose, centerPose))  //added line movement(Bezier line)
-                .setLinearHeadingInterpolation(grabPose.getHeading(), centerPose.getHeading())
+        moveright = follower.pathBuilder()
+                .addPath(new BezierLine(rightPose, endPose))  //added line movement(Bezier line)
+                .setLinearHeadingInterpolation(rightPose.getHeading(), endPose.getHeading())
+                .build();
+        moveback = follower.pathBuilder()
+                .addPath(new BezierLine(endPose, centerPose))
+                .setLinearHeadingInterpolation(endPose.getHeading(), centerPose.getHeading())
                 .build();
     }
 
     //updating paths
     public void statePathUpdate() {
         switch(pathState) {
-            case DRIVE_STARTPOS_LOAD_POS:
-                follower.followPath(centertograb, true); //holdEnd makes the robot hold the position after the path ends
+            case MOVE_RIGHT:
+                follower.followPath(moveright, true);//holdEnd makes the robot hold the position after the path ends
                 //pathState = PathState.LOAD_POS_DRIVE_STARTPOS; //switches to the next state
-                setPathState(PathState.LOAD_POS_DRIVE_STARTPOS); //reset timer and make new state
+                setPathState(PathState.MOVE_UP); //reset timer and make new state
                 break;
-            case LOAD_POS_DRIVE_STARTPOS:
-                if(!follower.isBusy()) {
-                    follower.followPath(grabtocenter, true);
+            case MOVE_UP:
+                if(!follower.isBusy() && pathTimer.getElapsedTimeSeconds() > 2) {
+                    follower.followPath(moveup, true);//holdEnd makes the robot hold the position after the path ends
+                    //pathState = PathState.LOAD_POS_DRIVE_STARTPOS; //switches to the next state
+                    setPathState(PathState.MOVE_BACK); //reset timer and make new state
+                    break;
+                }
+            case MOVE_BACK:
+                if(!follower.isBusy() && pathTimer.getElapsedTimeSeconds() > 3) {
+                    follower.followPath(moveback, true);
                     //pathState = PathState.DRIVE_STARTPOS_LOAD_POS;
                     telemetry.addLine("Finished1");
                     break;
@@ -103,7 +117,7 @@ public class BasicAuton extends OpMode {
     @Override
     public void init () {
         //inits
-        pathState = PathState.DRIVE_STARTPOS_LOAD_POS;
+        pathState = PathState.MOVE_RIGHT;
         pathTimer = new Timer();
         totalTimer = new Timer();
         totalTimer.resetTimer();
