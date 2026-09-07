@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.Auton; // make sure this aligns with clas
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
 
+import static java.lang.Math.toRadians;
+
 import com.pedropathing.follower.Follower;
 //import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
@@ -50,8 +52,8 @@ public class BasicAuton extends OpMode {
      */
 
     PathState pathState;
-    private final Pose centerPose = new Pose(72,72, 0.5);
-    private final Pose grabPose = new Pose(120, 72, 0.5);
+    private final Pose centerPose = new Pose(72,72, 0.5*Math.PI);
+    private final Pose grabPose = new Pose(120, 72, 0.5*Math.PI);
 
 
 
