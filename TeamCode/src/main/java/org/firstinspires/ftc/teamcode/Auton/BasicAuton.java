@@ -1,12 +1,13 @@
 package org.firstinspires.ftc.teamcode.Auton; // make sure this aligns with class location
-
+import org.firstinspires.ftc.teamcode.Auton.Drawing;
+import org.firstinspires.ftc.teamcode.pedroPathing.Tuning;
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
-
 import static java.lang.Math.toRadians;
 
 import com.pedropathing.follower.Follower;
 //import com.pedropathing.geometry.BezierCurve;
+import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
@@ -44,7 +45,7 @@ public class BasicAuton extends OpMode {
     /*
     In general, Pedro pathing works by making a bunch of paths going from position 1 to 2, position 2 to 3, etc
      */
-    /dd
+
 
     /*
     Poses are set position for your robot to go. first two arguments are x and y, then it's the angle (in radians, 0.5 is forward.
@@ -53,7 +54,7 @@ public class BasicAuton extends OpMode {
 
     PathState pathState;
     private final Pose centerPose = new Pose(72,72, 0.5*Math.PI);
-    private final Pose grabPose = new Pose(120, 72, 0.5*Math.PI);
+    private final Pose grabPose = new Pose(120, 60, 0.5*Math.PI);
 
 
 
@@ -122,11 +123,13 @@ public class BasicAuton extends OpMode {
     @Override
     public void loop () {
         follower.update();
-        statePathUpdate();
 
+        Drawing.drawDebug(follower);
+        statePathUpdate();
         telemetry.addData("path state", pathState.toString());
         telemetry.addData("x", follower.getPose().getX());
         telemetry.addData("y", follower.getPose().getY());
+        telemetry.update();
     }
 
 }
