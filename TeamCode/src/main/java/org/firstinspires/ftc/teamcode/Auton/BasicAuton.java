@@ -27,7 +27,6 @@ import com.pedropathing.util.Timer;
 
 @Autonomous(name = "Basic Auto")
 
-
 public class BasicAuton extends OpMode {
 
     private Follower follower;
@@ -37,12 +36,11 @@ public class BasicAuton extends OpMode {
     public enum PathState {
         //always gives a start position and end position
         DRIVE_STARTPOS_LOAD_POS,
-        LOAD_POS_DRIVE_STARTPOS
+        LOAD_POS_DRIVE_STARTPOS,
     }
     /*
     In general, Pedro pathing works by making a bunch of paths going from position 1 to 2, position 2 to 3, etc
      */
-    /dd
 
     /*
     Poses are set position for your robot to go. first two arguments are x and y, then it's the angle (in radians, 0.5 is forward.
