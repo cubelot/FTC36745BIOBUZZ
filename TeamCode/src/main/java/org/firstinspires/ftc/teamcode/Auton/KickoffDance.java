@@ -7,6 +7,11 @@ import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
+
+import java.util.Timer;
+
+@Autonomous
 public class KickoffDance extends LinearOpMode {
 
     private final Pose startPose = new Pose(72,72,Math.toRadians(90));
@@ -24,12 +29,22 @@ public class KickoffDance extends LinearOpMode {
     private final Pose crissCross_2 = new Pose (96, 84, Math.toRadians(45));
 
     private Follower follower;
+    private PathChain toTheLeft;
 
 
 
     @Override
-    public void runOpMode() throws InterruptedException {
+    public void runOpMode() {
+        //These will run when the OpMode is initiated
+        follower = Constants.createFollower(hardwareMap);
+        follower.setStartingPose(startPose);
+        waitForStart();
 
+        while (opModeIsActive()) {
+            follower.update();
+
+
+        }
     }
 
     public void shimmy(Follower follower, int cycles, long speed) {
