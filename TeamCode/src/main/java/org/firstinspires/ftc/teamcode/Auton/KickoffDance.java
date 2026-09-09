@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Auton;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.Path;
+import com.qualcomm.ftccommon.SoundPlayer;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 public class KickoffDance extends LinearOpMode {
@@ -23,6 +24,19 @@ public class KickoffDance extends LinearOpMode {
 
     private Follower follower;
 
+    @Override
+    public void runOpMode() throws InterruptedException {
+
+        int soundID = hardwareMap.appContext.getResources()
+                .getIdentifier("your_song", "raw", hardwareMap.appContext.getPackageName());
+
+        // 1. Initialize and wait for match start
+        waitForStart();
+
+        if (opModeIsActive()) {
+            // 2. Start the song immediately when Autonomous begins
+            SoundPlayer.getInstance().startPlaying(hardwareMap.appContext, soundID);
+        }
 
     @Override
     public void runOpMode() throws InterruptedException {
