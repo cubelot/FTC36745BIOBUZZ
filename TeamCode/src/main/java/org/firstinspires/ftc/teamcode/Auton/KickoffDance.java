@@ -5,6 +5,8 @@ import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
+import com.pedropathing.util.Timer;
+import com.pedropathing.paths.PathChain;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.ftccommon.SoundPlayer;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -16,7 +18,7 @@ import java.util.Timer;
 @Autonomous(name = "Kickoff Dance")
 public class KickoffDance extends LinearOpMode {
 
-    private final Pose startPose = new Pose(72,72,Math.toRadians(90));
+    private final Pose startPose1 = new Pose(72,72,Math.toRadians(90));
     private final Pose toTheLeft_2 = new Pose (48, 72, Math.toRadians(90));
     private final Pose toTheRight_2 = new Pose (96,72,Math.toRadians(90));
     private final Pose takeItBack = new Pose(72, 48, Math.toRadians(90));
@@ -56,7 +58,6 @@ public class KickoffDance extends LinearOpMode {
             SoundPlayer.getInstance().startPlaying(hardwareMap.appContext, soundID);
 
 
-        }
     }
 
     public void shimmy(Follower follower, int cycles, long speed) {
