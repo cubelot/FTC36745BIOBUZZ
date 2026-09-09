@@ -53,9 +53,12 @@ public class KickoffDance extends LinearOpMode {
 
 
         int soundID = hardwareMap.appContext.getResources().getIdentifier("your_song", "raw", hardwareMap.appContext.getPackageName());
+        if(opModeIsActive()){
+
+            SoundPlayer.getInstance().startPlaying(hardwareMap.appContext, soundID);
+        }
         while (opModeIsActive()) {
             follower.update();
-            SoundPlayer.getInstance().startPlaying(hardwareMap.appContext, soundID);
 
 
     }
