@@ -18,8 +18,8 @@ public class KickoffDance extends LinearOpMode {
     private final Pose hopThisTime_2 = new Pose (72, 84, Math.toRadians(90));
     private final Pose hopThisTime_1 = new Pose (72, 78, Math.toRadians(90));
 
-    private final Pose crissCross_1 = new Pose (48, 84, Math.toRadians(180));
-    private final Pose crissCross_2 = new Pose (96, 84, Math.toRadians(0));
+    private final Pose crissCross_1 = new Pose (48, 84, Math.toRadians(135));
+    private final Pose crissCross_2 = new Pose (96, 84, Math.toRadians(45));
 
     private Follower follower;
 
