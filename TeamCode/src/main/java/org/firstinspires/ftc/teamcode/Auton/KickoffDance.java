@@ -1,10 +1,9 @@
 package org.firstinspires.ftc.teamcode.Auton;
 
 import com.pedropathing.follower.Follower;
-import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.Path;
-import com.pedropathing.paths.PathChain;
+import com.qualcomm.ftccommon.SoundPlayer;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
@@ -14,7 +13,7 @@ import java.util.Timer;
 @Autonomous
 public class KickoffDance extends LinearOpMode {
 
-    private final Pose startPose = new Pose(72,72,Math.toRadians(90));
+    private final Pose startPose1 = new Pose(72,72,Math.toRadians(90));
     private final Pose toTheLeft_2 = new Pose (48, 72, Math.toRadians(90));
     private final Pose toTheRight_2 = new Pose (96,72,Math.toRadians(90));
     private final Pose takeItBack = new Pose(72, 48, Math.toRadians(90));
@@ -31,7 +30,19 @@ public class KickoffDance extends LinearOpMode {
     private Follower follower;
     private PathChain toTheLeft;
 
+    @Override
+    public void runOpMode() throws InterruptedException {
 
+        int soundID = hardwareMap.appContext.getResources()
+                .getIdentifier("your_song", "raw", hardwareMap.appContext.getPackageName());
+
+        // 1. Initialize and wait for match start
+        waitForStart();
+
+        if (opModeIsActive()) {
+            // 2. Start the song immediately when Autonomous begins
+            SoundPlayer.getInstance().startPlaying(hardwareMap.appContext, soundID);
+        }
 
     @Override
     public void runOpMode() {
@@ -58,14 +69,5 @@ public class KickoffDance extends LinearOpMode {
         }
         follower.setTeleOpDrive(0, 0, 0, true);
         follower.update();
-    }
-    public void moveToPose(Pose targetPose) {
-        Path path = new Path(new BezierLine(follower.getPose(), targetPose));
-        path.setLinearHeadingInterpolation(follower.getPose().getHeading(), targetPose.getHeading());
-        follower.followPath(path);
-
-        while (opModeIsActive() && !follower.atParametricEnd()) {
-            follower.update();
-        }
     }
 }

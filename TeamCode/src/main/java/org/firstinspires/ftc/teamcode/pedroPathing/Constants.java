@@ -24,10 +24,9 @@ public class Constants {
             //.forwardZeroPowerAcceleration(-42.343572953089065)
             //.lateralZeroPowerAcceleration(-57.035110445951176)
             //.translationalPIDFCoefficients(new PIDFCoefficients(0.075,0,0.001, 0.02))
-            .headingPIDFCoefficients(new PIDFCoefficients(1, 0, 0.065, 0.025))
-            .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(1.2,0,0.03,0.02))
+            .headingPIDFCoefficients(new PIDFCoefficients(0.7, 0, 0.002, 0.032))
             //.drivePIDFCoefficients(new FilteredPIDFCoefficients(0.55, 0, 0.0001, 0.6, 0.02))
-            .predictiveBrakingCoefficients(new PredictiveBrakingCoefficients(0.04, 0.05386978922358552, 0.0014252789895499041))
+            .predictiveBrakingCoefficients(new PredictiveBrakingCoefficients(0.03, 0.5977134135828005, 0.0013007973229804634))
             .centripetalScaling(0)
             ;
 
@@ -42,8 +41,8 @@ public class Constants {
             .leftRearMotorDirection(DcMotorSimple.Direction.REVERSE)
             .rightFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
             .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD)
-            .xVelocity(65.63270484774095)
-            .yVelocity(56.4656540277436);
+            .xVelocity(64.48004390686518)
+            .yVelocity(55.82799524021899);
     public static PathConstraints pathConstraints = new PathConstraints(0.99, 100, 1.5, 1);
     public static PinpointConstants localizerConstants = new PinpointConstants()
             .forwardPodY(-3)
