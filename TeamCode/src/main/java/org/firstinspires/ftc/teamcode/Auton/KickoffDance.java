@@ -23,7 +23,6 @@ public class KickoffDance extends LinearOpMode {
 
     private Follower follower;
 
-    Pat
 
     @Override
     public void runOpMode() throws InterruptedException {
