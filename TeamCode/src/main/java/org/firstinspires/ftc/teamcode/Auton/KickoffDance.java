@@ -1,8 +1,10 @@
 package org.firstinspires.ftc.teamcode.Auton;
 
 import com.pedropathing.follower.Follower;
+import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.Path;
+import com.pedropathing.paths.PathChain;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 public class KickoffDance extends LinearOpMode {
@@ -24,6 +26,7 @@ public class KickoffDance extends LinearOpMode {
     private Follower follower;
 
 
+
     @Override
     public void runOpMode() throws InterruptedException {
 
@@ -40,5 +43,14 @@ public class KickoffDance extends LinearOpMode {
         }
         follower.setTeleOpDrive(0, 0, 0, true);
         follower.update();
+    }
+    public void moveToPose(Pose targetPose) {
+        Path path = new Path(new BezierLine(follower.getPose(), targetPose));
+        path.setLinearHeadingInterpolation(follower.getPose().getHeading(), targetPose.getHeading());
+        follower.followPath(path);
+
+        while (opModeIsActive() && !follower.atParametricEnd()) {
+            follower.update();
+        }
     }
 }
