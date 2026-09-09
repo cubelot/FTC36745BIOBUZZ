@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 public class KickoffDance extends LinearOpMode {
 
-    private final Pose startPose = new Pose(72,72,Math.toRadians(90));
+    private final Pose startPose1 = new Pose(72,72,Math.toRadians(90));
     private final Pose toTheLeft_2 = new Pose (48, 72, Math.toRadians(90));
     private final Pose toTheRight_2 = new Pose (96,72,Math.toRadians(90));
     private final Pose takeItBack = new Pose(72, 48, Math.toRadians(90));
