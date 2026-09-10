@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.Auton;
 
-import android.media.MediaPlayer;
-
 import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
@@ -13,7 +11,6 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.ftccommon.SoundPlayer;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.teamcode.R;
 import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 
 
@@ -46,48 +43,40 @@ public class KickoffDance extends LinearOpMode {
     private Timer songTimer;
 
 
-
+    boolean start = true;
     @Override
     public void runOpMode(){
         //These will run when the OpMode is initiated
         follower = Constants.createFollower(hardwareMap);
         follower.setStartingPose(startPose);
         follower.startTeleOpDrive();
-        int soundID = hardwareMap.appContext.getResources().getIdentifier("chacha", "raw", hardwareMap.appContext.getPackageName());
-        telemetry.addData("soundid", soundID);
-
-        if (soundID != 0) {
-            // Preload the sound into cache during init to prevent audio cutting off
-//            SoundPlayer.PlaySoundParams params = new SoundPlayer.PlaySoundParams();
-//            params.loopControl = 0;
-//            params.waitForNonLoopingSoundsToFinish = true;
-//            SoundPlayer.getInstance().preload(hardwareMap.appContext, soundID, params, null, null);
-            telemetry.addData("Sound Status", "Preloaded Successfully");
-        } else {
-            telemetry.addData("Sound Status", "File Not Found!");
-        }
-        telemetry.update();
         waitForStart();
         songTimer = new Timer();
 
-        if (opModeIsActive()) {
-            if (soundID != 0) {
-                // Play sound: soundID, leftVolume, rightVolume, priority, loop, rate
 
-                SoundPlayer.PlaySoundParams params = new SoundPlayer.PlaySoundParams();
-                params.loopControl = 0;
-                params.waitForNonLoopingSoundsToFinish = true;
-                SoundPlayer.getInstance().startPlaying(hardwareMap.appContext, soundID, params, null, null);
-                telemetry.addData("asddd", 3);
-                telemetry.update();
-            }
+        int soundID = hardwareMap.appContext.getResources().getIdentifier("chacha", "raw", hardwareMap.appContext.getPackageName());
+        while (opModeIsActive()) {
+            shimmy(follower, 12, 50);
+            follower.update();
 
-            while (opModeIsActive()) {
-                shimmy(follower, 12, 50);
-                follower.update();
-            }
+            SoundPlayer.PlaySoundParams params = new SoundPlayer.PlaySoundParams();
+            params.loopControl = 0; // Plays only once
+            params.waitForNonLoopingSoundsToFinish = true;
+
+            // Start playing. The SDK automatically handles streaming it to the connected Driver Hub
+            SoundPlayer.getInstance().startPlaying(
+                    hardwareMap.appContext,
+                    soundID,
+                    params,
+                    null,
+                    null);
         }
-        //int soundID = hardwareMap.appContext.getResources().getIdentifier("chacha.mp3", "raw", hardwareMap.appContext.getPackageName());
+
+        if(opModeIsActive() && start){
+            SoundPlayer.getInstance().startPlaying(hardwareMap.appContext, soundID);
+            start = false;
+        }
+
 
 
     }
