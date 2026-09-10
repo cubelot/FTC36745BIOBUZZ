@@ -13,7 +13,6 @@ public class MecanumTeleOp extends LinearOpMode {
 
     private DcMotor rightBack;
     private DcMotor leftBack;
-    private DcMotor rb;
 
     @Override
     public void runOpMode() {
