@@ -55,9 +55,13 @@ public class KickoffDance extends LinearOpMode {
         follower.startTeleOpDrive();
         int soundID = hardwareMap.appContext.getResources().getIdentifier("chacha", "raw", hardwareMap.appContext.getPackageName());
         telemetry.addData("soundid", soundID);
+
         if (soundID != 0) {
             // Preload the sound into cache during init to prevent audio cutting off
-            SoundPlayer.getInstance().preload(hardwareMap.appContext, soundID);
+//            SoundPlayer.PlaySoundParams params = new SoundPlayer.PlaySoundParams();
+//            params.loopControl = 0;
+//            params.waitForNonLoopingSoundsToFinish = true;
+//            SoundPlayer.getInstance().preload(hardwareMap.appContext, soundID, params, null, null);
             telemetry.addData("Sound Status", "Preloaded Successfully");
         } else {
             telemetry.addData("Sound Status", "File Not Found!");
@@ -69,8 +73,13 @@ public class KickoffDance extends LinearOpMode {
         if (opModeIsActive()) {
             if (soundID != 0) {
                 // Play sound: soundID, leftVolume, rightVolume, priority, loop, rate
-                SoundPlayer.getInstance().startPlaying(hardwareMap.appContext, soundID);
-                telemetry.addLine("asddd");
+
+                SoundPlayer.PlaySoundParams params = new SoundPlayer.PlaySoundParams();
+                params.loopControl = 0;
+                params.waitForNonLoopingSoundsToFinish = true;
+                SoundPlayer.getInstance().startPlaying(hardwareMap.appContext, soundID, params, null, null);
+                telemetry.addData("asddd", 3);
+                telemetry.update();
             }
 
             while (opModeIsActive()) {
