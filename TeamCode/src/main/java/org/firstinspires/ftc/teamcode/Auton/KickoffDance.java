@@ -17,6 +17,8 @@ import org.firstinspires.ftc.teamcode.pedroPathing.Constants;
 @Autonomous(name = "Kickoff Dance")
 public class KickoffDance extends LinearOpMode {
 
+    private Follower follower;
+
     private final Pose startPose = new Pose(72,72,Math.toRadians(90));
     private final Pose toTheLeft_2 = new Pose (48, 72, Math.toRadians(90));
     private final Pose toTheRight_2 = new Pose (96,72,Math.toRadians(90));
@@ -31,7 +33,7 @@ public class KickoffDance extends LinearOpMode {
     private final Pose crissCross_1 = new Pose (48, 84, Math.toRadians(135));
     private final Pose crissCross_2 = new Pose (96, 84, Math.toRadians(45));
 
-    private Follower follower;
+
     private PathChain toTheLeft;
 
 
@@ -41,24 +43,28 @@ public class KickoffDance extends LinearOpMode {
     private Timer songTimer;
 
 
-
+    boolean start = true;
     @Override
-    public void runOpMode() {
+    public void runOpMode(){
         //These will run when the OpMode is initiated
         follower = Constants.createFollower(hardwareMap);
         follower.setStartingPose(startPose);
+        follower.startTeleOpDrive();
         waitForStart();
         songTimer = new Timer();
 
 
-        int soundID = hardwareMap.appContext.getResources().getIdentifier("your_song", "raw", hardwareMap.appContext.getPackageName());
-        if(opModeIsActive()){
 
-            SoundPlayer.getInstance().startPlaying(hardwareMap.appContext, soundID);
-        }
+
+        int soundID = hardwareMap.appContext.getResources().getIdentifier("chacha", "raw", hardwareMap.appContext.getPackageName());
         while (opModeIsActive()) {
+            shimmy(follower, 12, 50);
             follower.update();
 
+        }
+        if(opModeIsActive() && start){
+            SoundPlayer.getInstance().startPlaying(hardwareMap.appContext, soundID);
+            start = false;
         }
     }
 
@@ -74,13 +80,6 @@ public class KickoffDance extends LinearOpMode {
         follower.setTeleOpDrive(0, 0, 0, true);
         follower.update();
     }
-    public void moveToPose(Pose targetPose) {
-        Path path = new Path(new BezierLine(follower.getPose(), targetPose));
-        path.setLinearHeadingInterpolation(follower.getPose().getHeading(), targetPose.getHeading());
-        follower.followPath(path);
 
-        while (opModeIsActive() && !follower.atParametricEnd()) {
-            follower.update();
-        }
-    }
+
 }

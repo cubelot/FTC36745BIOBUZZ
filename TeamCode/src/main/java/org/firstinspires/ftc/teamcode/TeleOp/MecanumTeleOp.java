@@ -10,6 +10,8 @@ public class MecanumTeleOp extends LinearOpMode {
 
     private DcMotor leftFront;
     private DcMotor rightFront;
+
+    private DcMotor rightBack;
     private DcMotor leftBack;
     private DcMotor rb;
 
