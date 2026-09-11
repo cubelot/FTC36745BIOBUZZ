@@ -12,7 +12,7 @@ public class AutonExample extends OpMode {
 
     private Follower follower;
 
-    private final PoseFactory p = PoseFactory.degrees();
+    private final PoseFactory pf = PoseFactory.degrees();
 
     private final Pose startPose = new Pose(72, 72, Math.toRadians(0));
     
