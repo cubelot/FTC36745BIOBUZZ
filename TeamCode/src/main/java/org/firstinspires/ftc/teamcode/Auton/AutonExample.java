@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Auton;
 
 import com.pedropathing.api.PoseFactory;
+import com.pedropathing.ivy.Command;
 import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -9,6 +10,10 @@ import org.firstinspires.ftc.teamcode.pedro.Constants;
 import static com.pedropathing.api.Paths.*;
 import com.pedropathing.paths.Path;
 import com.pedropathing.ivy.Scheduler;
+import static com.pedropathing.ivy.Scheduler.schedule;
+import static com.pedropathing.ivy.groups.Groups.sequential;
+import static com.pedropathing.ivy.pedro.PedroCommands.follow;
+
 
 @Autonomous
 public class AutonExample extends OpMode {
@@ -40,21 +45,40 @@ public class AutonExample extends OpMode {
     private Path endPath(){
         return line(pose3, pose4).reverseTangent();
     }
+
+
+
+    private Command autoRoutine() {
+        return sequential(
+                follow(follower, startPath()),
+                follow(follower, path1()),
+                follow(follower, path2()),
+                follow(follower, endPath())
+        );
+    }
     
 
     @Override
     public void init() {
+        Scheduler.reset();
+
         follower = Constants.create(hardwareMap);
         follower.setPose(startPose);
     }
 
     @Override
     public void start () {
+        schedule(autoRoutine());
 
     }
 
     @Override
     public void loop() {
+        follower.update();
+        Scheduler.execute();
+
+        telemetry.addLine("running fine  :)");
+        telemetry.addLine("B-K, Have it your way, you rule!");
 
     }
 }
