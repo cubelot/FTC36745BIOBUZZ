@@ -15,7 +15,7 @@ public class AutonExample extends OpMode {
 
     private Follower follower;
 
-    private final PoseFactory pf = PoseFactory.degrees();
+    private final PoseFactory pf = PoseFactory.degrees();//new posefactory thingy; it is supposed to help reduce the length of pose lines
 
     private final Pose startPose = pf.of(72, 72, 90);
     private final Pose pose1 = pf.of(120, 96, 0);
