@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.pedro;
 
+import static com.pedropathing.revhub.localizers.PinpointLocalizer.ResetMode.RESET_AND_RECALIBRATE_IMU;
+
 import com.pedropathing.follower.Follower;
 import com.pedropathing.revhub.drivetrains.MecanumConfig;
 import com.pedropathing.revhub.localizers.PinpointConfig;
@@ -30,9 +32,10 @@ public class Constants {
         c.podType.set(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
         c.xPodOffset.set(2.389182894248662);
         c.yPodOffset.set(5.502398633581446);
-        c.xPodDirection.set(GoBildaPinpointDriver.EncoderDirection.FORWARD);
-        c.yPodDirection.set(GoBildaPinpointDriver.EncoderDirection.FORWARD);
+        c.xPodDirection.set(GoBildaPinpointDriver.EncoderDirection.REVERSED);
+        c.yPodDirection.set(GoBildaPinpointDriver.EncoderDirection.REVERSED);
         c.globalDistanceUnit.set(DistanceUnit.INCH);
         c.offsetUnits.set(DistanceUnit.INCH);
+        c.resetMode.set(RESET_AND_RECALIBRATE_IMU);
     });
 }
