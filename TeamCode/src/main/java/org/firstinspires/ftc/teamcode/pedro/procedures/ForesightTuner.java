@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.pedro.procedures;
 
+import static com.pedropathing.utils.Utils.linearFit;
+import static com.pedropathing.utils.Utils.quadraticFit;
+
 import com.pedropathing.drivetrain.DrivePowers;
 import com.pedropathing.drivetrain.Drivetrain;
 import com.pedropathing.localization.Localizer;
@@ -13,11 +16,11 @@ import com.pedropathing.utils.Utils;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.Function;
-
-import static com.pedropathing.utils.Utils.linearFit;
-import static com.pedropathing.utils.Utils.quadraticFit;
 
 public class ForesightTuner extends Procedure {
     Function<HardwareMap, Localizer> localizerFunction;
@@ -94,31 +97,31 @@ public class ForesightTuner extends Procedure {
         result("brake kV", brake);
 
         code(Language.JAVA,
-                "public static ForesightConfig foresightConfig = new ForesightConfig(\n" +
-                        "            c -> {\n" +
-                        "                Controller primaryTranslationalForward = Controller.proportional("+forwardTranslationalPrimary+");\n" +
-                        "                Controller secondaryTranslationalForward = Controller.proportional("+forwardTranslationalSecondary+");\n" +
-                        "                Controller primaryTranslationalLateral = Controller.proportional("+strafeTranslationalPrimary+");\n" +
-                        "                Controller secondaryTranslationalLateral = Controller.proportional("+strafeTranslationalSecondary+");\n" +
-                        "\n" +
-                        "                c.forwardTranslational.set(Controller.piecewise(secondaryTranslationalForward).put(2.5, primaryTranslationalForward));\n" +
-                        "                c.strafeTranslational.set(Controller.piecewise(secondaryTranslationalLateral).put(2.5, primaryTranslationalLateral));\n" +
-                        "\n" +
-                        "                c.coast.set(Controller.proportionalFeedforward("+coast+"));\n" +
-                        "                c.brake.set(Controller.proportionalFeedforward("+brake+"));\n" +
-                        "\n" +
-                        "                c.headingFeedback.set(Controller.proportional("+heading+"));\n" +
-                        "                c.headingBrakeCoefficients.set(Vector2D.cartesian("+headingLinear+", "+headingQuadratic+"));\n" +
-                        "\n" +
-                        "                c.linearBrakeCoefficients.set(Matrix.diag("+forwardLinear+", "+strafeLinear+"));\n" +
-                        "                c.quadraticBrakeCoefficients.set(Matrix.diag("+forwardQuadratic+", "+strafeQuadratic+"));\n" +
-                        "\n" +
-                        "                c.maxAchievableForwardVelocity.set("+forwardVelocity+");\n" +
-                        "                c.maxAchievableStrafeVelocity.set("+strafeVelocity+");\n" +
-                        "                c.naturalForwardDeceleration.set("+forwardDeceleration+");\n" +
-                        "                c.naturalStrafeDeceleration.set("+strafeDeceleration+");\n" +
-                        "            }\n" +
-                        "    );");
+        "public static ForesightConfig foresightConfig = new ForesightConfig(\n" +
+                "            c -> {\n" +
+                "                Controller primaryTranslationalForward = Controller.proportional("+forwardTranslationalPrimary+");\n" +
+                "                Controller secondaryTranslationalForward = Controller.proportional("+forwardTranslationalSecondary+");\n" +
+                "                Controller primaryTranslationalLateral = Controller.proportional("+strafeTranslationalPrimary+");\n" +
+                "                Controller secondaryTranslationalLateral = Controller.proportional("+strafeTranslationalSecondary+");\n" +
+                "\n" +
+                "                c.forwardTranslational.set(Controller.piecewise(secondaryTranslationalForward).put(2.5, primaryTranslationalForward));\n" +
+                "                c.strafeTranslational.set(Controller.piecewise(secondaryTranslationalLateral).put(2.5, primaryTranslationalLateral));\n" +
+                "\n" +
+                "                c.coast.set(Controller.proportionalFeedforward("+coast+"));\n" +
+                "                c.brake.set(Controller.proportionalFeedforward("+brake+"));\n" +
+                "\n" +
+                "                c.headingFeedback.set(Controller.proportional("+heading+"));\n" +
+                "                c.headingBrakeCoefficients.set(Vector2D.cartesian("+headingLinear+", "+headingQuadratic+"));\n" +
+                "\n" +
+                "                c.linearBrakeCoefficients.set(Matrix.diag("+forwardLinear+", "+strafeLinear+"));\n" +
+                "                c.quadraticBrakeCoefficients.set(Matrix.diag("+forwardQuadratic+", "+strafeQuadratic+"));\n" +
+                "\n" +
+                "                c.maxAchievableForwardVelocity.set("+forwardVelocity+");\n" +
+                "                c.maxAchievableStrafeVelocity.set("+strafeVelocity+");\n" +
+                "                c.naturalForwardDeceleration.set("+forwardDeceleration+");\n" +
+                "                c.naturalStrafeDeceleration.set("+strafeDeceleration+");\n" +
+                "            }\n" +
+                "    );");
     }
 }
 
@@ -170,7 +173,7 @@ class ForwardVelocity extends TuningOpMode<Double> {
         drivetrain.stop();
         double average = 0;
         for (double velocity : velocities) {
-            average += velocity;
+                average += velocity;
         }
         average /= velocities.size();
         return average;
@@ -660,7 +663,7 @@ class HeadingTuner extends TuningOpMode<Double> {
     }
 }
 
-class ForwardBraking extends TuningOpMode<List<Double>>  {
+class ForwardBraking extends TuningOpMode<List<Double>> {
     Function<HardwareMap, Localizer> localizerFunction;
     Function<HardwareMap, Drivetrain> drivetrainFunction;
     private final double headingLinear;
@@ -698,7 +701,7 @@ class ForwardBraking extends TuningOpMode<List<Double>>  {
     }
 
     @Override
-    protected List<Double> runTuningOpMode() throws InterruptedException {
+    protected List<Double> runTuningOpMode() {
         Localizer localizer = localizerFunction.apply(hardwareMap);
         Drivetrain drivetrain = drivetrainFunction.apply(hardwareMap);
 
@@ -708,7 +711,7 @@ class ForwardBraking extends TuningOpMode<List<Double>>  {
         POWERS = biasedGradient(trials, maxPower, minPower, bias);
 
         List<Double> coefficients = Collections.emptyList();
-        Thread.sleep(300);
+
         waitForStart();
         timer.reset();
 
@@ -720,8 +723,7 @@ class ForwardBraking extends TuningOpMode<List<Double>>  {
             if (iteration < POWERS.length) {
                 power = POWERS[iteration];
             }
-            telemetry.addData("pose", localizer.pose());
-            telemetry.update();
+
             switch (state) {
                 case DRIVE: {
                     if ((direction > 0 && Math.abs(localizer.pose().x()) >= distance) || (direction < 0 && Math.abs(localizer.pose().x()) <= 12)) {
@@ -1221,3 +1223,4 @@ class StrafeTranslational extends TuningOpMode<List<Double>> {
         this.tau = -1.0/linReg[1];
     }
 }
+

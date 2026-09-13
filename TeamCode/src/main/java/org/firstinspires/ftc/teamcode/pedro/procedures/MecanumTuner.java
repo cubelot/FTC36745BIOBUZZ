@@ -1,7 +1,11 @@
 package org.firstinspires.ftc.teamcode.pedro.procedures;
 
-import com.pedropathing.tuning.autotune.*;
+import com.pedropathing.tuning.autotune.Display;
 import com.pedropathing.tuning.autotune.Display.FourWheelBot.Wheel;
+import com.pedropathing.tuning.autotune.DisplayName;
+import com.pedropathing.tuning.autotune.Inputs;
+import com.pedropathing.tuning.autotune.Procedure;
+import com.pedropathing.tuning.autotune.TuningOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 enum Direction {
