@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.sensors;
+/*package org.firstinspires.ftc.teamcode.sensors;
 
 import android.util.Size;
 
@@ -10,6 +10,7 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.vision.VisionPortal;
+import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.ArrayList;
@@ -27,20 +28,22 @@ public class AprilTagLogi {
         this.telemetry = telemetry;
 
         atProcessor = new AprilTagProcessor.Builder()
+                .setTagFamily(AprilTagProcessor.TagFamily.TAG_36h11)
+                .setTagLibrary(AprilTagGameDatabase.getBioBuzzTagLibrary())
                 .setDrawTagID(true)
                 .setDrawTagOutline(true)
                 .setDrawAxes(true)
                 .setDrawCubeProjection(true)
                 .setOutputUnits(DistanceUnit.CM, AngleUnit.DEGREES)
-                .build();
+                .build(); //So we can see what's happening visually with data
 
         VisionPortal.Builder builder = new VisionPortal.Builder();
         builder.setCamera(hardwareMap.get(WebcamName.class, "Webcam #1"));
         builder.setCameraResolution(new Size(640, 480));
         
-        /*MJEPG uses less USB bandwidth,so I added this line cuz that means higher quality
-        and steadier framerate: tags detct faster and less lag*/
-        builder.setStreamFormat(VisionPortal.StreamFormat.MJPEG); 
+        //MJEPG uses less USB bandwidth,so I added this line cuz that means higher quality
+        //and steadier framerate: tags detct faster and less lag
+        //builder.setStreamFormat(VisionPortal.StreamFormat.MJPEG);
         
         builder.addProcessor(atProcessor);
 
@@ -84,9 +87,9 @@ public class AprilTagLogi {
     }
 
     public AprilTagDetection getTagById(int id) { //small edit ig
-        for (AprilTagDetection detection : detectedTags) {
-            if (detection.id == id) {
-                return detection;
+        for (AprilTagDetection detectionID : detectedTags) {
+            if (detectionID.id == id) {
+                return detectionID;
             }
         }
         return null;
@@ -98,3 +101,4 @@ public class AprilTagLogi {
         }
     }
 }
+*/
