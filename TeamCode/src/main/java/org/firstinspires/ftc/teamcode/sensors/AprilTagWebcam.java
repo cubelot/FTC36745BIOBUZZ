@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.mechanisms;
+package org.firstinspires.ftc.teamcode.sensors;
 
 import android.util.Size;
 
@@ -9,10 +9,10 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.vision.VisionPortal;
-import org.firstinspires.ftc.vision.VisionPortalImpl;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
-//import org.openftc.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
+import org.firstinspires.ftc.vision.apriltag.AprilTagSingleDetection;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +24,7 @@ public class AprilTagWebcam {
 
     private Telemetry telemetry;
 
-    private void init(HardwareMap hwMap, Telemetry telemetry){
+    public void init(HardwareMap hwMap, Telemetry telemetry){
         this.telemetry = telemetry;
 
         aprilTagProcessor = new AprilTagProcessor.Builder() //The following code is there so we can visualize the results better
@@ -34,45 +34,49 @@ public class AprilTagWebcam {
                 .setDrawCubeProjection(true)
                 .setOutputUnits(DistanceUnit.CM, AngleUnit.DEGREES)
                 .build();
-
         VisionPortal.Builder builder = new VisionPortal.Builder();
-        builder.setCamera(hwMap.get(WebcamName.class,"Webcam 1"));
+        builder.setCamera(hwMap.get(WebcamName.class, "camera"));
         builder.setCameraResolution(new Size(640, 480));
         builder.addProcessor(aprilTagProcessor);
 
         visionPortal = builder.build();
     }
-
     public void update() {
         detectedTags = aprilTagProcessor.getDetections();
-    }
 
+    }
     public List<AprilTagDetection> getDetectedTags() {
         return detectedTags;
-    }
-
-    public List<AprilTagDetection> getDetectedTags() {
-        return detectedTags;
-    }
-
-    public void displayDetectionTelemetry(AprilTagDetection detectedId) {
-        if (detectedId == null) {return;}
 
     }
 
-    public AprilTagDetection getTagBySpecificID(int id) {
+    public AprilTagDetection getSpecificID (int id) {
         for (AprilTagDetection detection : detectedTags) {
-            if (detection.id == id) {
-                return detection;
+            if (detection instanceof AprilTagSingleDetection) {
+                int tagId = ((AprilTagSingleDetection) detection).id;
+                if (tagId == id) {
+                    return detection;
+                }
+
             }
         }
         return null;
     }
+    public void myIphone(AprilTagDetection detection){
+        if (detection == null){return;}
+        if (detection instanceof AprilTagSingleDetection) {
+            int tagId = ((AprilTagSingleDetection) detection).id;
 
-    public void stop() {
+            telemetry.addData("X: ", detection.ftcPose.x);
+            telemetry.addData("Y: ", detection.ftcPose.y);
+            telemetry.addData("Z: ", detection.ftcPose.z);
+            telemetry.addData("ID: ", tagId);
+            telemetry.update();
+        }
+    }
+    public void stopStream() {
         if (visionPortal != null) {
             visionPortal.close();
-
         }
     }
 }
