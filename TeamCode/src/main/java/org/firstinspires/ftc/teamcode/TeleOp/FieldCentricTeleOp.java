@@ -4,6 +4,7 @@ package org.firstinspires.ftc.teamcode.TeleOp;
 
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
@@ -19,7 +20,8 @@ public class FieldCentricTeleOp extends LinearOpMode {
     private DcMotor rightBack;
     private DcMotor outtake;
     private DcMotor intake;
-
+    private CRServo left;
+    private CRServo right;
     private DcMotor transfer;
 
     //pinpoint
@@ -27,16 +29,19 @@ public class FieldCentricTeleOp extends LinearOpMode {
 
     @Override
     public void runOpMode(){
+
+
         leftFront = hardwareMap.get(DcMotor.class, "lf");
         rightFront = hardwareMap.get(DcMotor.class, "rf");
         leftBack = hardwareMap.get(DcMotor.class, "lb");
         rightBack = hardwareMap.get(DcMotor.class ,"rb");
-        outtake = hardwareMap.get(DcMotor.class, "outtake");
-        intake = hardwareMap.get(DcMotor.class, "intake");
-        transfer = hardwareMap.get(DcMotor.class, "transfer");
-
+        outtake = hardwareMap.get(DcMotor.class, "Outtake");
+        intake = hardwareMap.get(DcMotor.class, "Intake");
+        transfer = hardwareMap.get(DcMotor.class, "Transfer");
+        left = hardwareMap.get(CRServo.class, "left");
+        right = hardwareMap.get(CRServo.class, "right");
         odo =  hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
-        odo.setOffsets(-3, -3.5, DistanceUnit.INCH);
+        odo.setOffsets(1, -6, DistanceUnit.INCH);
         odo.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
         odo.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.REVERSED, GoBildaPinpointDriver.EncoderDirection.REVERSED);
         odo.resetPosAndIMU();
@@ -120,23 +125,47 @@ public class FieldCentricTeleOp extends LinearOpMode {
             rightFront.setPower(rfPower);
             rightBack.setPower(rbPower);
 
-            if(gamepad2.left_trigger_pressed) {
+            if(gamepad1.left_trigger_pressed) {
+                outtake.setPower(0.9);
+            } else if(gamepad1.right_trigger_pressed) {
                 outtake.setPower(0.9);
                 transfer.setPower(1);
-            } else if(gamepad2.right_trigger_pressed) {
-                outtake.setPower(0.5);
-                transfer.setPower(0.7);
             } else {
                 outtake.setPower(0);
                 transfer.setPower(0);
 
             }
-            if(gamepad2.a) {
-                intake.setPower(0.9);
-            } else if(gamepad2.b) {
-                intake.setPower(0.5);
+            /*
+            controls:
+            A: Intake transfer max speed
+            B: Transfer slightly slower
+            X: Reverse
+            Left Trigger: Outtake only
+            Right Trigger: Outtake and transfer
+             */
+
+            if(gamepad1.a) {
+                intake.setPower(1);
+                left.setPower(1);
+                right.setPower(-1);
+                transfer.setPower(1);
+            } else if(gamepad1.b) {
+                intake.setPower(1);
+                left.setPower(1);
+                right.setPower(-1);
+                transfer.setPower(0.8);
             } else {
                 intake.setPower(0);
+                transfer.setPower(0);
+                left.setPower(0);
+                right.setPower(0);
+            }
+
+            if(gamepad1.x) {
+                transfer.setPower(-1);
+                intake.setPower(-1);
+                left.setPower(-1);
+                right.setPower(1);
             }
 
 
