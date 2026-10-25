@@ -28,19 +28,19 @@ public class FieldCentricTeleOp extends LinearOpMode {
     private GoBildaPinpointDriver odo;
 
     @Override
-    public void runOpMode(){
+    public void runOpMode() {
 
 
         leftFront = hardwareMap.get(DcMotor.class, "lf");
         rightFront = hardwareMap.get(DcMotor.class, "rf");
         leftBack = hardwareMap.get(DcMotor.class, "lb");
-        rightBack = hardwareMap.get(DcMotor.class ,"rb");
+        rightBack = hardwareMap.get(DcMotor.class, "rb");
         outtake = hardwareMap.get(DcMotor.class, "Outtake");
         intake = hardwareMap.get(DcMotor.class, "Intake");
         transfer = hardwareMap.get(DcMotor.class, "Transfer");
         left = hardwareMap.get(CRServo.class, "left");
         right = hardwareMap.get(CRServo.class, "right");
-        odo =  hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
+        odo = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
         odo.setOffsets(1, -6, DistanceUnit.INCH);
         odo.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
         odo.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.REVERSED, GoBildaPinpointDriver.EncoderDirection.REVERSED);
@@ -58,7 +58,6 @@ public class FieldCentricTeleOp extends LinearOpMode {
         transfer.setDirection(DcMotorSimple.Direction.FORWARD);
 
 
-
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -67,18 +66,24 @@ public class FieldCentricTeleOp extends LinearOpMode {
         telemetry.addLine("it works");
 
         waitForStart();
-        if(isStopRequested()) return;
+        if (isStopRequested()) return;
 
         boolean prevA = false;
         boolean stateA = false;
+        double power;
 
-        while(opModeIsActive()) {
+        power = 0;
+
+        boolean leftBumper = false;
+        boolean rightBumper = false;
+
+        while (opModeIsActive()) {
             double y = -gamepad1.left_stick_y;
             double x = gamepad1.left_stick_x;
             double ry = -gamepad1.right_stick_y;
             double rx = gamepad1.right_stick_x;
             boolean padA = gamepad1.a;
-            if(padA != prevA){
+            if (padA != prevA) {
                 if (padA) {
                     stateA = true;
                 } else {
@@ -93,27 +98,31 @@ public class FieldCentricTeleOp extends LinearOpMode {
             mathematically using a certain heading, which tells you the angle difference between
             the current location versus the desired location via rotation by assuming the current
             location is at 0 radians everytime. */
-            double theta = odo.getHeading(AngleUnit.DEGREES)-180; //Same as heading but in degrees, used for the following code
+            double theta = odo.getHeading(AngleUnit.DEGREES) - 180; //Same as heading but in degrees, used for the following code
             if (theta < 0) {
-                theta = 360 + theta;} //makes theta range from the built-in -180 - 180 range to 0 - 360 range
-            double pointer = Math.toDegrees(Math.atan2 (ry,rx)); //Converts right joystick motion into degrees (vector),
+                theta = 360 + theta;
+            } //makes theta range from the built-in -180 - 180 range to 0 - 360 range
+            double pointer = Math.toDegrees(Math.atan2(ry, rx)); //Converts right joystick motion into degrees (vector),
             // atan2 is the same as taking the arctan for two arguments (inputs).
             if (pointer < 0) {
-                pointer = 360 + pointer;} //0-360 range like theta
+                pointer = 360 + pointer;
+            } //0-360 range like theta
             double difference = pointer - theta; //Difference checks the closest way to get to your location
             difference = difference - 360.0 * Math.round(difference / 360.0); //Makes difference negative so that it can go -90 turn instead of 270 for instance.
-            double magnitude = Math.hypot(rx,ry); /* Checks how much has the joystick
+            double magnitude = Math.hypot(rx, ry); /* Checks how much has the joystick
             been offset from the positon where you are not pushing the joystick*/
             double r = 0; // Makes the rate of turning based on where the desired rotation location is
             if (stateA) { //Advanced mode
                 if (magnitude > 0.2) { //Checks if we are actually actively trying to turn it
-                    r = Math.round(difference/180);} //Signum basically takes the sign only, so it can directly go to the directed result
+                    r = Math.round(difference / 180);
+                } //Signum basically takes the sign only, so it can directly go to the directed result
             } else {
-                r=rx;} //Basic mode
+                r = rx;
+            } //Basic mode
             //The above code basically turns the robot to the direction the right controller is pointing, so it stays relative to the driver
 
-            double rotx = x*Math.cos(-heading)-y*Math.sin(-heading);
-            double roty = x*Math.sin(-heading)+y*Math.cos(-heading);
+            double rotx = x * Math.cos(-heading) - y * Math.sin(-heading);
+            double roty = x * Math.sin(-heading) + y * Math.cos(-heading);
             //Math behind rotation and changing the x and y coordinates accordingly
             double lfPower = roty + rotx + r;
             double lbPower = roty - rotx + r;
@@ -125,59 +134,67 @@ public class FieldCentricTeleOp extends LinearOpMode {
             rightFront.setPower(rfPower);
             rightBack.setPower(rbPower);
 
-            if(gamepad1.left_trigger_pressed) {
-                outtake.setPower(0.9);
-            } else if(gamepad1.right_trigger_pressed) {
-                outtake.setPower(0.9);
-                transfer.setPower(1);
+            if (gamepad1.left_bumper && !leftBumper) {
+                power += 0.05;
+
+            } else if (gamepad1.right_bumper && !rightBumper) {
+                power -= 0.05;
+            }
+
+            leftBumper = gamepad1.left_bumper;
+            rightBumper = gamepad1.right_bumper;
+
+            if (gamepad1.left_trigger_pressed) {
+                outtake.setPower(power);
+            } else if (gamepad1.right_trigger_pressed) {
+                    outtake.setPower(power);
+                    transfer.setPower(0.1);
             } else {
-                outtake.setPower(0);
-                transfer.setPower(0);
+                    outtake.setPower(0);
+                    transfer.setPower(0);
 
             }
+
             /*
             controls:
             A: Intake transfer max speed
-            B: Transfer slightly slower
+            B: Transfer slow
             X: Reverse
             Left Trigger: Outtake only
-            Right Trigger: Outtake and transfer
+            Right Trigger: slow transfer
              */
 
-            if(gamepad1.a) {
-                intake.setPower(1);
-                left.setPower(1);
-                right.setPower(-1);
-                transfer.setPower(1);
-            } else if(gamepad1.b) {
-                intake.setPower(1);
-                left.setPower(1);
-                right.setPower(-1);
-                transfer.setPower(0.8);
-            } else {
-                intake.setPower(0);
-                transfer.setPower(0);
-                left.setPower(0);
-                right.setPower(0);
+                if (gamepad1.a) {
+                    intake.setPower(1);
+                    left.setPower(1);
+                    right.setPower(-1);
+                    transfer.setPower(1);
+                } else if (gamepad1.b) {
+                    transfer.setPower(0.5);
+                } else if (gamepad1.y){
+                        transfer.setPower(0.3);
+                } else {
+                    intake.setPower(0);
+                    transfer.setPower(0);
+                    left.setPower(0);
+                    right.setPower(0);
+                }
+
+                if (gamepad1.x) {
+                    transfer.setPower(-1);
+                    intake.setPower(-1);
+                    left.setPower(-1);
+                    right.setPower(1);
+                }
+
+
+                telemetry.addLine("its running");
+                telemetry.addData("power", power);
+                telemetry.update();
+
+                telemetry.update();
             }
 
-            if(gamepad1.x) {
-                transfer.setPower(-1);
-                intake.setPower(-1);
-                left.setPower(-1);
-                right.setPower(1);
-            }
 
-
-            telemetry.addLine("its running");
-            telemetry.addData("stateA: ", stateA);
-            telemetry.update();
-
-            telemetry.update();
         }
-
-
-
-
     }
-}
