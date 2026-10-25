@@ -79,6 +79,7 @@ public class FieldCentricTeleOp extends LinearOpMode {
 
         while (opModeIsActive()) {
 
+
             /*
             double y = -gamepad1.left_stick_y;
             double x = gamepad1.left_stick_x;
@@ -136,6 +137,8 @@ public class FieldCentricTeleOp extends LinearOpMode {
             rightFront.setPower(rfPower);
             rightBack.setPower(rbPower);
             */
+
+
 
             if (gamepad1.left_bumper && !leftBumper) {
                 power += 0.05;
