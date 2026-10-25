@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode.TeleOp;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
-public class TeleOp extends LinearOpMode {
+@TeleOp
+public class MecanumTeleOp extends LinearOpMode {
     DcMotor leftFront;
     DcMotor rightFront;
     DcMotor leftBack;
