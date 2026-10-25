@@ -78,6 +78,8 @@ public class FieldCentricTeleOp extends LinearOpMode {
         boolean rightBumper = false;
 
         while (opModeIsActive()) {
+
+            /*
             double y = -gamepad1.left_stick_y;
             double x = gamepad1.left_stick_x;
             double ry = -gamepad1.right_stick_y;
@@ -97,7 +99,7 @@ public class FieldCentricTeleOp extends LinearOpMode {
             /* Used later for properly rotating Cartesian coordinates (normal coordinate plane)
             mathematically using a certain heading, which tells you the angle difference between
             the current location versus the desired location via rotation by assuming the current
-            location is at 0 radians everytime. */
+            location is at 0 radians everytime.
             double theta = odo.getHeading(AngleUnit.DEGREES) - 180; //Same as heading but in degrees, used for the following code
             if (theta < 0) {
                 theta = 360 + theta;
@@ -110,7 +112,7 @@ public class FieldCentricTeleOp extends LinearOpMode {
             double difference = pointer - theta; //Difference checks the closest way to get to your location
             difference = difference - 360.0 * Math.round(difference / 360.0); //Makes difference negative so that it can go -90 turn instead of 270 for instance.
             double magnitude = Math.hypot(rx, ry); /* Checks how much has the joystick
-            been offset from the positon where you are not pushing the joystick*/
+            been offset from the positon where you are not pushing the joystick
             double r = 0; // Makes the rate of turning based on where the desired rotation location is
             if (stateA) { //Advanced mode
                 if (magnitude > 0.2) { //Checks if we are actually actively trying to turn it
@@ -133,6 +135,7 @@ public class FieldCentricTeleOp extends LinearOpMode {
             leftBack.setPower(lbPower);
             rightFront.setPower(rfPower);
             rightBack.setPower(rbPower);
+            */
 
             if (gamepad1.left_bumper && !leftBumper) {
                 power += 0.05;
