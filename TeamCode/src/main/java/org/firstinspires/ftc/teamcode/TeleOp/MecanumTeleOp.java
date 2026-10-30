@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 @TeleOp
 public class MecanumTeleOp extends LinearOpMode {
@@ -19,6 +20,8 @@ public class MecanumTeleOp extends LinearOpMode {
     CRServo left;
     CRServo right;
 
+    private VoltageSensor voltage;
+
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -32,6 +35,7 @@ public class MecanumTeleOp extends LinearOpMode {
         transfer = hardwareMap.get(DcMotor.class, "Transfer");
         left = hardwareMap.get(CRServo.class, "left");
         right = hardwareMap.get(CRServo.class, "right");
+        voltage = hardwareMap.get(VoltageSensor.class, "Control Hub");
 
         leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -45,8 +49,10 @@ public class MecanumTeleOp extends LinearOpMode {
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         double power;
+        double mPower;
 
         power = 0;
+        mPower = 1;
 
         boolean leftBumper = false;
         boolean rightBumper = false;
@@ -62,10 +68,10 @@ public class MecanumTeleOp extends LinearOpMode {
             double rx = gamepad1.right_stick_x;
 
             double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
-            double frontLeftPower = (y + x + rx) / denominator;
-            double backLeftPower = (y - x + rx) / denominator;
-            double frontRightPower = (y - x - rx) / denominator;
-            double backRightPower = (y + x - rx) / denominator;
+            double frontLeftPower = (y + x + rx) / denominator * mPower;
+            double backLeftPower = (y - x + rx) / denominator * mPower;
+            double frontRightPower = (y - x - rx) / denominator * mPower;
+            double backRightPower = (y + x - rx) / denominator * mPower;
 
             leftFront.setPower(frontLeftPower);
             leftBack.setPower(backLeftPower);
@@ -84,14 +90,15 @@ public class MecanumTeleOp extends LinearOpMode {
 
             if (gamepad1.left_trigger_pressed) {
                 outtake.setPower(power);
-            } else if (gamepad1.right_trigger_pressed) {
-                outtake.setPower(power);
-                transfer.setPower(0.1);
             } else {
                 outtake.setPower(0);
-                transfer.setPower(0);
 
             }
+
+            if (gamepad1.right_trigger_pressed) {
+                mPower = 0.3;
+            }
+
 
             /*
             controls:
@@ -109,8 +116,6 @@ public class MecanumTeleOp extends LinearOpMode {
                 transfer.setPower(1);
             } else if (gamepad1.b) {
                 transfer.setPower(0.5);
-            } else if (gamepad1.y){
-                transfer.setPower(0.3);
             } else {
                 intake.setPower(0);
                 transfer.setPower(0);
