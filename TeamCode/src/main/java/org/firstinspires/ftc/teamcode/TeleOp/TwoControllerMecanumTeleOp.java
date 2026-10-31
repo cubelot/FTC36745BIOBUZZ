@@ -45,8 +45,11 @@ public class TwoControllerMecanumTeleOp extends LinearOpMode {
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         double power;
+        double mPower;
 
         power = 0;
+        mPower = 1;
+
 
         boolean leftBumper = false;
         boolean rightBumper = false;
@@ -62,10 +65,10 @@ public class TwoControllerMecanumTeleOp extends LinearOpMode {
             double rx = gamepad1.right_stick_x;
 
             double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
-            double frontLeftPower = (y + x + rx) / denominator;
-            double backLeftPower = (y - x + rx) / denominator;
-            double frontRightPower = (y - x - rx) / denominator;
-            double backRightPower = (y + x - rx) / denominator;
+            double frontLeftPower = (y + x + rx) / denominator * mPower;
+            double backLeftPower = (y - x + rx) / denominator * mPower;
+            double frontRightPower = (y - x - rx) / denominator * mPower;
+            double backRightPower = (y + x - rx) / denominator * mPower;
 
             leftFront.setPower(frontLeftPower);
             leftBack.setPower(backLeftPower);
@@ -82,12 +85,15 @@ public class TwoControllerMecanumTeleOp extends LinearOpMode {
             leftBumper = gamepad2.left_bumper;
             rightBumper = gamepad2.right_bumper;
 
-            if (gamepad2.left_trigger_pressed) {
+            if (gamepad2.right_trigger_pressed) {
                 outtake.setPower(power);
                 transfer.setPower(1);
             } else {
                 outtake.setPower(0);
                 transfer.setPower(0);
+            }
+            if (gamepad1.right_trigger_pressed) {
+                mPower = 0.3;
             }
 
             /*
