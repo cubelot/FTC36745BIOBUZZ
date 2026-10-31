@@ -74,15 +74,15 @@ public class TwoControllerMecanumTeleOp extends LinearOpMode {
         while(opModeIsActive()) {
 
 
-            double y = -1 * Math.pow(gamepad1.left_stick_y, 2);
-            double x = Math.pow(gamepad1.left_stick_x * 1.1, 2);
-            double rx = Math.pow(gamepad1.right_stick_x, 2);
+            double y = -gamepad1.left_stick_y;
+            double x = gamepad1.left_stick_x * 1.1;
+            double rx = gamepad1.right_stick_x;
 
             double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
-            double frontLeftPower = (y + x + rx) / denominator * mPower;
-            double backLeftPower = (y - x + rx) / denominator * mPower;
-            double frontRightPower = (y - x - rx) / denominator * mPower;
-            double backRightPower = (y + x - rx) / denominator * mPower;
+            double frontLeftPower = Math.pow((y + x + rx) / denominator * mPower, 2);
+            double backLeftPower = Math.pow((y - x + rx) / denominator * mPower, 2);
+            double frontRightPower = Math.pow((y - x - rx) / denominator * mPower, 2);
+            double backRightPower = Math.pow((y + x - rx) / denominator * mPower, 2);
 
             leftFront.setPower(frontLeftPower);
             leftBack.setPower(backLeftPower);

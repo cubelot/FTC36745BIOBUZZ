@@ -97,7 +97,7 @@
 //        return null;
 //    }
 //
-//    public void halt() {
+//    public void halt {
 //        if (vp != null) {
 //            vp.close();
 //        }
