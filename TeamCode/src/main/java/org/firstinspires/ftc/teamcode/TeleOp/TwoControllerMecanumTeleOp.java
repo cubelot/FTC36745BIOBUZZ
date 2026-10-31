@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 @TeleOp
 public class TwoControllerMecanumTeleOp extends LinearOpMode {
@@ -19,6 +20,8 @@ public class TwoControllerMecanumTeleOp extends LinearOpMode {
     CRServo left;
     CRServo right;
 
+    VoltageSensor voltage;
+
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -32,6 +35,8 @@ public class TwoControllerMecanumTeleOp extends LinearOpMode {
         transfer = hardwareMap.get(DcMotor.class, "Transfer");
         left = hardwareMap.get(CRServo.class, "left");
         right = hardwareMap.get(CRServo.class, "right");
+        voltage = hardwareMap.get(VoltageSensor.class, "Control Hub");
+
 
         leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -46,6 +51,10 @@ public class TwoControllerMecanumTeleOp extends LinearOpMode {
 
         double power;
         double mPower;
+        double volts = voltage.getVoltage();
+        double vChange = 0;
+
+
 
         mPower = 1;
 
@@ -54,6 +63,8 @@ public class TwoControllerMecanumTeleOp extends LinearOpMode {
 
         boolean leftBumper = false;
         boolean rightBumper = false;
+        boolean isBelowVoltage = false;
+
 
         waitForStart();
 
@@ -61,6 +72,8 @@ public class TwoControllerMecanumTeleOp extends LinearOpMode {
 
 
         while(opModeIsActive()) {
+
+
             double y = -1 * Math.pow(gamepad1.left_stick_y, 2);
             double x = Math.pow(gamepad1.left_stick_x * 1.1, 2);
             double rx = Math.pow(gamepad1.right_stick_x, 2);
@@ -81,6 +94,17 @@ public class TwoControllerMecanumTeleOp extends LinearOpMode {
 
             } else if (gamepad2.right_bumper && !rightBumper) {
                 power -= 0.05;
+            }
+            if (volts < 12) {
+                isBelowVoltage = true;
+                vChange *= Math.pow(13/volts, 2);
+                frontLeftPower *= volts/13;
+                backLeftPower *= volts/13;
+                frontRightPower *= volts/13;
+                backRightPower *= volts/13;
+
+            } else {
+                vChange = 0;
             }
 
             leftBumper = gamepad2.left_bumper;
@@ -135,6 +159,8 @@ public class TwoControllerMecanumTeleOp extends LinearOpMode {
 
             telemetry.addLine("its running");
             telemetry.addData("power", power);
+            telemetry.addData("isBelowVoltage", isBelowVoltage);
+            telemetry.addData("volts", volts);
             telemetry.update();
 
             telemetry.update();
