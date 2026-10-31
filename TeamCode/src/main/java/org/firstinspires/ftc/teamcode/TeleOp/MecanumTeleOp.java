@@ -54,13 +54,18 @@ public class MecanumTeleOp extends LinearOpMode {
         power = 0;
         mPower = 1;
 
+        double vChange = 0;
+
+        double volts = voltage.getVoltage();
+
         boolean leftBumper = false;
         boolean rightBumper = false;
+        boolean isBelowVoltage = false;
 
         waitForStart();
 
         if(isStopRequested()) return;
-        //h
+
 
 
         while(opModeIsActive()) {
@@ -79,6 +84,18 @@ public class MecanumTeleOp extends LinearOpMode {
             rightFront.setPower(frontRightPower);
             rightBack.setPower(backRightPower);
 
+            if (volts < 12) {
+                isBelowVoltage = true;
+                vChange *= Math.pow(13/volts, 2);
+                frontLeftPower *= volts/13;
+                backLeftPower *= volts/13;
+                frontRightPower *= volts/13;
+                backRightPower *= volts/13;
+
+            } else {
+                vChange = 0;
+            }
+
             if (gamepad1.left_bumper && !leftBumper) {
                 power += 0.05;
 
@@ -90,7 +107,7 @@ public class MecanumTeleOp extends LinearOpMode {
             rightBumper = gamepad1.right_bumper;
 
             if (gamepad1.left_trigger_pressed) {
-                outtake.setPower(power);
+                outtake.setPower(power*vChange);
             } else {
                 outtake.setPower(0);
 
@@ -136,12 +153,9 @@ public class MecanumTeleOp extends LinearOpMode {
 
             telemetry.addLine("its running");
             telemetry.addData("power", power);
+            telemetry.addData("isBelowVoltage", isBelowVoltage);
+            telemetry.addData("volts", volts);
             telemetry.update();
-
-            telemetry.update();
-
-
         }
-
     }
 }
