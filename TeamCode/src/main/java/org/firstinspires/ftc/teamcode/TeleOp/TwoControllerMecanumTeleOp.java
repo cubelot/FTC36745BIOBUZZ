@@ -47,8 +47,9 @@ public class TwoControllerMecanumTeleOp extends LinearOpMode {
         double power;
         double mPower;
 
-        power = 0;
         mPower = 1;
+
+        power = 0;
 
 
         boolean leftBumper = false;
@@ -93,7 +94,7 @@ public class TwoControllerMecanumTeleOp extends LinearOpMode {
                 transfer.setPower(0);
             }
             if (gamepad1.right_trigger_pressed) {
-                mPower = 0.3;
+                mPower = 0.4;
             } else {
                 mPower = 1;
             }

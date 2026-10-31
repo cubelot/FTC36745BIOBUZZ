@@ -96,7 +96,9 @@ public class MecanumTeleOp extends LinearOpMode {
             }
 
             if (gamepad1.right_trigger_pressed) {
-                mPower = 0.3;
+                mPower = 0.4;
+            } else {
+                mPower = 1;
             }
 
 
