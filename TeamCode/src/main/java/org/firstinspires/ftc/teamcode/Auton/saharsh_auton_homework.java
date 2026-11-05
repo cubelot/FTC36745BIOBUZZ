@@ -28,10 +28,6 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 
-/**
- * Simple 3-step auton: drive to a shooting spot, shoot, then park.
- * Poses are placeholders: measure them on your field and change them.
- */
 @Autonomous(name = "saharsh_auton_homework", group = "Practice")
 public class saharsh_auton_homework extends OpMode {
 
@@ -49,8 +45,8 @@ public class saharsh_auton_homework extends OpMode {
     private CRServo leftFeed, rightFeed;
 
     // Paths
-    private Path toShoot() { return line(startPose, shootPose).linear(startPose, shootPose); }
-    private Path toPark()  { return line(shootPose, parkPose).linear(shootPose, parkPose); }
+    private Path saharshShooter() { return line(startPose, shootPose).linear(startPose, shootPose); }
+    private Path saharshPark()  { return line(shootPose, parkPose).linear(shootPose, parkPose); }
 
     @Override
     public void init() {
@@ -82,12 +78,12 @@ public class saharsh_auton_homework extends OpMode {
     private Command routine() {
         return sequential(
                 instant(() -> outtake.setPower(0.85)),   // spin up first
-                follow(follower, toShoot()),             // drive to shooting spot
+                follow(follower, saharshShooter()),             // drive to shooting spot
                 waitMs(1000),                            // let the flywheel settle
                 instant(this::feedOn),
                 waitMs(4000),                            // shoot
                 instant(this::allOff),
-                follow(follower, toPark())               // park
+                follow(follower, saharshPark())               // park
         );
     }
 
