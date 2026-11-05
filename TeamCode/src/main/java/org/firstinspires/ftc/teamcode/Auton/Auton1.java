@@ -45,9 +45,6 @@ public class Auton1 extends OpMode {
 
     @Override
     public void init() {
-        for (LynxModule hub : hardwareMap.getAll(LynxModule.class)) {
-            hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
-        }
         outtake = hardwareMap.get(DcMotor.class, "outtake");
         intake = hardwareMap.get(DcMotor.class, "intake");
         transfer = hardwareMap.get(DcMotor.class, "transfer");
