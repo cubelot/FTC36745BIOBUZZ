@@ -49,15 +49,16 @@ public class MecanumTeleOp extends LinearOpMode {
         rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        double power;
+        double power
         double mPower;
-
-        power = 0.75;
-        mPower = 1;
-
+        double volts = voltage.getVoltage();
         double vChange = 1;
 
-        double volts = voltage.getVoltage();
+
+        int rev = 1;
+        mPower = 1;
+
+        power = 0.75;
 
         boolean leftBumper = false;
         boolean rightBumper = false;
@@ -85,6 +86,13 @@ public class MecanumTeleOp extends LinearOpMode {
             rightFront.setPower(frontRightPower);
             rightBack.setPower(backRightPower);
 
+
+            if (gamepad1.dpad_left && !leftBumper) {
+                power += 0.01;
+
+            } else if (gamepad1.dpad_right && !rightBumper) {
+                power -= 0.01;
+            }
             if (volts < 12) {
                 isBelowVoltage = true;
                 vChange *= Math.pow(13/volts, 2);
@@ -97,21 +105,14 @@ public class MecanumTeleOp extends LinearOpMode {
                 vChange = 1;
             }
 
-            if (gamepad1.left_bumper && !leftBumper) {
-                power += 0.05;
-
-            } else if (gamepad1.right_bumper && !rightBumper) {
-                power -= 0.05;
-            }
-            leftBumper = gamepad1.left_bumper;
-            rightBumper = gamepad1.right_bumper;
+            leftBumper = gamepad1.dpad_left;
+            rightBumper = gamepad1.dpad_right;
 
             if (gamepad1.left_trigger_pressed) {
                 outtake.setPower(power*vChange);
             } else {
                 outtake.setPower(0);
             }
-
             if (gamepad1.right_trigger_pressed) {
                 mPower = 0.4;
             } else {
@@ -121,18 +122,22 @@ public class MecanumTeleOp extends LinearOpMode {
 
             /*
             controls:
-            A: Intake transfer max speed
-            B: Transfer slow
-            X: Reverse
+            A: reverse mode
+            right button: intake
+            b: open gate
+            left button: transfer
             Left Trigger: Outtake only
             Right Trigger: slow transfer
              */
-
             if (gamepad1.a) {
-                intake.setPower(1);
-                left.setPower(1);
-                right.setPower(-1);
-                transfer.setPower(0.8);
+                rev = -1;
+            } else {
+                rev = 1;
+            }
+            if (gamepad1.right_bumper) {
+                intake.setPower(1*rev);
+                left.setPower(1*rev);
+                right.setPower(-1*rev);
             } else {
                 intake.setPower(0);
                 transfer.setPower(0);
@@ -141,17 +146,14 @@ public class MecanumTeleOp extends LinearOpMode {
 
             }
             if (gamepad1.b) {
-                gate.setPosition(150);
-                transfer.setPower(0.8);
+                gate.setPosition(0.2);
             } else {
-                gate.setPosition(30);
-                transfer.setPower(0);
+                gate.setPosition(0.5);
             }
-            if (gamepad1.x) {
-                transfer.setPower(-1);
-                intake.setPower(-1);
-                left.setPower(-1);
-                right.setPower(1);
+
+            if (gamepad1.left_bumper) {
+                transfer.setPower(0.6 * rev);
+
             }
 
 

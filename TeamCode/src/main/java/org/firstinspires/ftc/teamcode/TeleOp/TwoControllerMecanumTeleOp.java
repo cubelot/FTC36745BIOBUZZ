@@ -56,7 +56,7 @@ public class TwoControllerMecanumTeleOp extends LinearOpMode {
         double vChange = 1;
 
 
-
+        int rev = 1;
         mPower = 1;
 
         power = 0.75;
@@ -90,11 +90,11 @@ public class TwoControllerMecanumTeleOp extends LinearOpMode {
             rightFront.setPower(frontRightPower);
             rightBack.setPower(backRightPower);
 
-            if (gamepad2.left_bumper && !leftBumper) {
-                power += 0.05;
+            if (gamepad2.dpad_left && !leftBumper) {
+                power += 0.01;
 
-            } else if (gamepad2.right_bumper && !rightBumper) {
-                power -= 0.05;
+            } else if (gamepad2.dpad_right && !rightBumper) {
+                power -= 0.01;
             }
             if (volts < 12) {
                 isBelowVoltage = true;
@@ -108,17 +108,15 @@ public class TwoControllerMecanumTeleOp extends LinearOpMode {
                 vChange = 1;
             }
 
-            leftBumper = gamepad2.left_bumper;
-            rightBumper = gamepad2.right_bumper;
+            leftBumper = gamepad2.dpad_left;
+            rightBumper = gamepad2.dpad_right;
 
             if (gamepad2.left_trigger_pressed) {
-                outtake.setPower(power);
-                transfer.setPower(1);
+                outtake.setPower(power*vChange);
             } else {
                 outtake.setPower(0);
-                transfer.setPower(0);
             }
-            if (gamepad1.right_trigger_pressed) {
+            if (gamepad2.right_trigger_pressed) {
                 mPower = 0.4;
             } else {
                 mPower = 1;
@@ -127,18 +125,22 @@ public class TwoControllerMecanumTeleOp extends LinearOpMode {
 
             /*
             controls:
-            A: Intake transfer max speed
-            B: Transfer slow
-            X: Reverse
+            A: reverse mode
+            right button: intake
+            b: open gate
+            left button: transfer
             Left Trigger: Outtake only
             Right Trigger: slow transfer
              */
-
             if (gamepad2.a) {
-                intake.setPower(1);
-                left.setPower(1);
-                right.setPower(-1);
-                transfer.setPower(0.8);
+                rev = -1;
+            } else {
+                rev = 1;
+            }
+            if (gamepad2.right_bumper) {
+                intake.setPower(1*rev);
+                left.setPower(1*rev);
+                right.setPower(-1*rev);
             } else {
                 intake.setPower(0);
                 transfer.setPower(0);
@@ -147,19 +149,15 @@ public class TwoControllerMecanumTeleOp extends LinearOpMode {
 
             }
             if (gamepad2.b) {
-                gate.setPosition(150);
-                transfer.setPower(0.8);
+                gate.setPosition(0.2);
             } else {
-                gate.setPosition(30);
-                transfer.setPower(0);
-            }
-            if (gamepad2.x) {
-                transfer.setPower(-1);
-                intake.setPower(-1);
-                left.setPower(-1);
-                right.setPower(1);
+                gate.setPosition(0.5);
             }
 
+            if (gamepad2.left_bumper) {
+                transfer.setPower(0.6 * rev);
+
+            }
 
 
             telemetry.addLine("its running");
