@@ -22,8 +22,9 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 public class flywheel extends OpMode {
     /** Motor instance for controlling the flywheel with encoder velocity control. */
     public DcMotorEx flywheelMotor;
+    public DcMotor transfer;
     /** Target velocity presets in encoder ticks per second. */
-    double highVelocity = 1500;
+    double highVelocity = 1380;
     double lowVelocity = 900;
 
     /** Currently active target velocity preset. */
@@ -46,11 +47,12 @@ public class flywheel extends OpMode {
     @Override
     public void init() {
         // Retrieve flywheel motor hardware instance
-        flywheelMotor = hardwareMap.get(DcMotorEx.class, "flywheel");
+        flywheelMotor = hardwareMap.get(DcMotorEx.class, "Outtake");
+        transfer = hardwareMap.get(DcMotor.class, "Transfer");
         // Enable closed-loop velocity mode using built-in motor encoder
         flywheelMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         // Set motor direction to reversed
-        flywheelMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        flywheelMotor.setDirection(DcMotorSimple.Direction.FORWARD);
 
         // Configure initial PIDF coefficients on the motor (P, I=0, D=0, F)
         PIDFCoefficients pidfCoefficients = new PIDFCoefficients(P, 0, 0, F);
@@ -98,9 +100,17 @@ public class flywheel extends OpMode {
             F-= stepsizes[stepIndex];
         }
 
+        if (gamepad1.right_bumper) {
+            transfer.setPower(1);
+        } else {
+            transfer.setPower(0);
+        }
+
         // set new PIDF coefficients :)
         PIDFCoefficients pidfCoefficients = new PIDFCoefficients(P, 0, 0, F);
         flywheelMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
+
+
 
 
         // set velocity of thingy
