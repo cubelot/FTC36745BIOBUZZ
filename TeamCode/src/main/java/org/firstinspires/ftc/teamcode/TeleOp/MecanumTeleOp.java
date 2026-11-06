@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
@@ -14,7 +15,7 @@ public class MecanumTeleOp extends LinearOpMode {
     DcMotor rightFront;
     DcMotor leftBack;
     DcMotor rightBack;
-    DcMotor outtake;
+    DcMotorEx outtake;
     DcMotor intake;
     DcMotor transfer;
 
@@ -31,7 +32,7 @@ public class MecanumTeleOp extends LinearOpMode {
         rightFront = hardwareMap.get(DcMotor.class, "rf");
         leftBack = hardwareMap.get(DcMotor.class, "lb");
         rightBack = hardwareMap.get(DcMotor.class, "rb");
-        outtake = hardwareMap.get(DcMotor.class, "Outtake");
+        outtake = hardwareMap.get(DcMotorEx.class, "Outtake");
         intake = hardwareMap.get(DcMotor.class, "Intake");
         transfer = hardwareMap.get(DcMotor.class, "Transfer");
         left = hardwareMap.get(CRServo.class, "left");
@@ -49,7 +50,7 @@ public class MecanumTeleOp extends LinearOpMode {
         rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        double power
+        double power;
         double mPower;
         double volts = voltage.getVoltage();
         double vChange = 1;
@@ -59,10 +60,13 @@ public class MecanumTeleOp extends LinearOpMode {
         mPower = 1;
 
         power = 0.75;
+        boolean isSlowMode = false;
+
 
         boolean leftBumper = false;
         boolean rightBumper = false;
         boolean isBelowVoltage = false;
+        String mode = "Fast";
 
         waitForStart();
 
@@ -129,12 +133,20 @@ public class MecanumTeleOp extends LinearOpMode {
             Left Trigger: Outtake only
             Right Trigger: slow transfer
              */
+            if(isSlowMode == true) {
+                mode = "Slow";
+            } else {
+                mode = "Fast";
+            }
             if (gamepad1.a) {
+                isSlowMode = true;
                 rev = -1;
             } else {
+                isSlowMode = false;
                 rev = 1;
             }
             if (gamepad1.right_bumper) {
+
                 intake.setPower(1*rev);
                 left.setPower(1*rev);
                 right.setPower(-1*rev);
@@ -156,11 +168,16 @@ public class MecanumTeleOp extends LinearOpMode {
 
             }
 
+            double rpm = (outtake.getVelocity() / 28) * 60;
+
 
             telemetry.addLine("its running");
             telemetry.addData("power", power);
             telemetry.addData("isBelowVoltage", isBelowVoltage);
             telemetry.addData("volts", volts);
+            telemetry.addData("velocity", outtake.getVelocity());
+            telemetry.addData("rpm", rpm);
+            telemetry.addData("Mode", mode);
             telemetry.update();
         }
     }
