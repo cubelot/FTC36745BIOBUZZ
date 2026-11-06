@@ -23,6 +23,10 @@ public class flywheel extends OpMode {
     /** Motor instance for controlling the flywheel with encoder velocity control. */
     public DcMotorEx flywheelMotor;
     public DcMotor transfer;
+
+    public DcMotor intake;
+
+    double transferPower = 0.6;
     /** Target velocity presets in encoder ticks per second. */
     double highVelocity = 1380;
     double lowVelocity = 900;
@@ -49,6 +53,7 @@ public class flywheel extends OpMode {
         // Retrieve flywheel motor hardware instance
         flywheelMotor = hardwareMap.get(DcMotorEx.class, "Outtake");
         transfer = hardwareMap.get(DcMotor.class, "Transfer");
+        intake = hardwareMap.get(DcMotor.class, "Intake");
         // Enable closed-loop velocity mode using built-in motor encoder
         flywheelMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         // Set motor direction to reversed
@@ -101,10 +106,22 @@ public class flywheel extends OpMode {
         }
 
         if (gamepad1.right_bumper) {
-            transfer.setPower(1);
+            transfer.setPower(transferPower);
         } else {
             transfer.setPower(0);
         }
+        if (gamepad1.left_bumper) {
+            intake.setPower(1);
+        } else {
+            intake.setPower(0);
+        }
+        if (gamepad1.right_trigger_pressed) {
+            transferPower += 0.01;
+        } else if (gamepad1.left_trigger_pressed) {
+            transferPower -= 0.01;
+        }
+
+
 
         // set new PIDF coefficients :)
         PIDFCoefficients pidfCoefficients = new PIDFCoefficients(P, 0, 0, F);
