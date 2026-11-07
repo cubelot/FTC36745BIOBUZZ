@@ -34,9 +34,8 @@ public class Auton1 extends OpMode {
     private DcMotor transfer;
 
 
-    private final Pose startPose = p.of(12, 12, 90);
-
-    private final Pose endPose = p.of(60, 12, 90);
+    private final Pose startPose = p.of(60, 10, 90);
+    private final Pose endPose = p.of(10, 112, 90);
 
 
     public Path path1() {
@@ -46,9 +45,6 @@ public class Auton1 extends OpMode {
 
     @Override
     public void init() {
-        for (LynxModule hub : hardwareMap.getAll(LynxModule.class)) {
-            hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
-        }
         outtake = hardwareMap.get(DcMotor.class, "outtake");
         intake = hardwareMap.get(DcMotor.class, "intake");
         transfer = hardwareMap.get(DcMotor.class, "transfer");

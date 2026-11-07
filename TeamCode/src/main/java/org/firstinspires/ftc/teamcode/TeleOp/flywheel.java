@@ -20,23 +20,40 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
  */
 @TeleOp
 public class flywheel extends OpMode {
-    /** Motor instance for controlling the flywheel with encoder velocity control. */
+    /**
+     * Motor instance for controlling the flywheel with encoder velocity control.
+     */
     public DcMotorEx flywheelMotor;
-    /** Target velocity presets in encoder ticks per second. */
-    double highVelocity = 4500;
+    public DcMotor transfer;
+
+    public DcMotor intake;
+
+    double transferPower = 0.6;
+    /**
+     * Target velocity presets in encoder ticks per second.
+     */
+    double highVelocity = 1440;
     double lowVelocity = 900;
 
-    /** Currently active target velocity preset. */
+    /**
+     * Currently active target velocity preset.
+     */
     double curTargetVelocity = highVelocity;
 
-    /** Feedforward (F) and Proportional (P) PIDF gain coefficients. */
+    /**
+     * Feedforward (F) and Proportional (P) PIDF gain coefficients.
+     */
     double F = 0;
     double P = 0;
 
-    /** Array of step magnitudes used when adjusting tuning values via gamepad controls. */
+    /**
+     * Array of step magnitudes used when adjusting tuning values via gamepad controls.
+     */
     double[] stepsizes = {10.0, 1.0, 0.1, 0.01, 0.001, 0.0001};
 
-    /** Index of the active step size in the stepsizes array. */
+    /**
+     * Index of the active step size in the stepsizes array.
+     */
     int stepIndex = 1;
 
     /**
@@ -46,11 +63,13 @@ public class flywheel extends OpMode {
     @Override
     public void init() {
         // Retrieve flywheel motor hardware instance
-        flywheelMotor = hardwareMap.get(DcMotorEx.class, "flywheel");
+        flywheelMotor = hardwareMap.get(DcMotorEx.class, "Outtake");
+        transfer = hardwareMap.get(DcMotor.class, "Transfer");
+        intake = hardwareMap.get(DcMotor.class, "Intake");
         // Enable closed-loop velocity mode using built-in motor encoder
         flywheelMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         // Set motor direction to reversed
-        flywheelMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        flywheelMotor.setDirection(DcMotorSimple.Direction.FORWARD);
 
         // Configure initial PIDF coefficients on the motor (P, I=0, D=0, F)
         PIDFCoefficients pidfCoefficients = new PIDFCoefficients(P, 0, 0, F);
@@ -70,13 +89,15 @@ public class flywheel extends OpMode {
         if (gamepad1.yWasPressed()) {
             if (curTargetVelocity == highVelocity) {
                 curTargetVelocity = lowVelocity;
-            } else {curTargetVelocity = highVelocity;  }
+            } else {
+                curTargetVelocity = highVelocity;
+            }
         }
 
         // B Button: Cycle through the step sizes array for tuning adjustments
         if (gamepad1.bWasPressed()) {
             stepIndex = (stepIndex + 1) % stepsizes.length;
-            }
+        }
 
         // D-Pad Left: Increase Feedforward gain (F) by the current step size
         if (gamepad1.dpadLeftWasPressed()) {
@@ -90,13 +111,30 @@ public class flywheel extends OpMode {
 
         // D-Pad Up: Increase Feedforward gain (F) by the current step size
         if (gamepad1.dpadUpWasPressed()) {
-            F += stepsizes[stepIndex];
+            P += stepsizes[stepIndex];
         }
 
         // D-Pad Down: Decrease Feedforward gain (F) by the current step size
         if (gamepad1.dpadDownWasPressed()) {
-            F-= stepsizes[stepIndex];
+            P -= stepsizes[stepIndex];
         }
+
+        if (gamepad1.right_bumper) {
+            transfer.setPower(transferPower);
+        } else {
+            transfer.setPower(0);
+        }
+        if (gamepad1.left_bumper) {
+            intake.setPower(1);
+        } else {
+            intake.setPower(0);
+        }
+        if (gamepad1.rightTriggerWasPressed()) {
+            transferPower += 0.01;
+        } else if (gamepad1.leftTriggerWasPressed()) {
+            transferPower -= 0.01;
+        }
+
 
         // set new PIDF coefficients :)
         PIDFCoefficients pidfCoefficients = new PIDFCoefficients(P, 0, 0, F);
@@ -111,7 +149,6 @@ public class flywheel extends OpMode {
         double error = curTargetVelocity - curVelocity;
 
 
-
         // Send target velocity, current velocity, error, and current PIDF parameters to Driver Station telemetry
         telemetry.addData("Target Velocity", curTargetVelocity);
         telemetry.addData("Current Velocity", "%.2f", curVelocity);
@@ -120,6 +157,7 @@ public class flywheel extends OpMode {
         telemetry.addData("Tuning P", "%.4f (D-Pad U/D)", P);
         telemetry.addData("Tuning F", "%.4f (D-Pad L/R)", F);
         telemetry.addData("Step Size", "%.4f (B Button)", stepsizes[stepIndex]);
-
+        telemetry.addData("Transfer Power", transferPower);
+        telemetry.update();
     }
 }
