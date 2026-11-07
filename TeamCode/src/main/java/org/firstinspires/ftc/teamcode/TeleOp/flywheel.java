@@ -23,7 +23,7 @@ public class flywheel extends OpMode {
     /** Motor instance for controlling the flywheel with encoder velocity control. */
     public DcMotorEx flywheelMotor;
     /** Target velocity presets in encoder ticks per second. */
-    double highVelocity = 1500;
+    double highVelocity = 4500;
     double lowVelocity = 900;
 
     /** Currently active target velocity preset. */
