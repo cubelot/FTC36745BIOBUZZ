@@ -40,6 +40,8 @@ public class Comp1Auton extends OpMode {
 
     private final Pose control1 = p.of(12, 32, 90);
 
+    private boolean isShootDone = false;
+
 
 
     public Path path1() {
@@ -76,8 +78,9 @@ public class Comp1Auton extends OpMode {
     @Override
     public void start() {
         schedule(shoot());
-
-        follower.follow(path1());
+        if(isShootDone == true) {
+            follower.follow(path1());
+        }
     }
     @Override
     public void loop() {
@@ -109,6 +112,7 @@ public class Comp1Auton extends OpMode {
                     outtake.setVelocity(0);
                     intake.setPower(0);
                     transfer.setPower(0);
+                    isShootDone = true;
                 });
     }
 }
