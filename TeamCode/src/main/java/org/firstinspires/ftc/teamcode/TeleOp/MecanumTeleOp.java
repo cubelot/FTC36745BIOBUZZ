@@ -46,9 +46,16 @@ public class MecanumTeleOp extends LinearOpMode {
         intake.setDirection(DcMotorSimple.Direction.FORWARD);
         transfer.setDirection(DcMotorSimple.Direction.FORWARD);
         outtake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//        PIDFCoefficients pidfCoefficients = new PIDFCoefficients(25.3, 0, 0, 14.65);
-        PIDFCoefficients pidfCoefficients = new PIDFCoefficients(44.55, 0, 0, 14.95);
-        outtake.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
+        PIDFCoefficients pidfCoefficients1 = new PIDFCoefficients(44.5, 0, 0, 14.9469);
+        PIDFCoefficients pidfCoefficients2 = new PIDFCoefficients(0, 0, 0, 15.5469);
+        PIDFCoefficients pidfCoefficients3 = new PIDFCoefficients(25.3, 0, 0, 14.65);
+        if(voltage.getVoltage() <= 12.25) {
+            outtake.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients2);
+        } else if (voltage.getVoltage() >= 13){
+            outtake.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients3);
+        } else {
+            outtake.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients1);
+        }
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
