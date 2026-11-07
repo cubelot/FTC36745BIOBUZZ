@@ -30,7 +30,7 @@ public class Comp1Auton extends OpMode {
 
     private DcMotorEx outtake;
     private DcMotor intake;
-
+    //
     private DcMotor transfer;
 
     private VoltageSensor voltage;
