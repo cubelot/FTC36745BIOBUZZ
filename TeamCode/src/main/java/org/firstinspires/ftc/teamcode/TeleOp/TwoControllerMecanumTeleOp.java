@@ -114,7 +114,7 @@ public class TwoControllerMecanumTeleOp extends LinearOpMode {
             } else {
                 outtake.setPower(0);
             }
-            if (gamepad2.right_trigger_pressed) {
+            if (gamepad1.right_trigger_pressed) {
                 mPower = 0.4;
             } else {
                 mPower = 1;

@@ -35,7 +35,7 @@ public class Comp1Auton extends OpMode {
 
     private VoltageSensor voltage;
 
-    private final Pose startPose = p.of(84, 12, 90);
+    private final Pose startPose = p.of(60, 12, 90);
     private final Pose endPose = p.of(12, 108, 90);
 
     private final Pose control1 = p.of(12, 32, 90);
@@ -76,6 +76,7 @@ public class Comp1Auton extends OpMode {
     @Override
     public void start() {
         schedule(shoot());
+
         follower.follow(path1());
     }
     @Override
@@ -98,12 +99,12 @@ public class Comp1Auton extends OpMode {
                 .setStart(() -> {
                     shootTime.reset();
                     outtake.setVelocity(1440);
-                    if(shootTime.milliseconds() >= 5000) {
+                    if(shootTime.milliseconds() >= 3000) {
                     intake.setPower(1);
                     transfer.setPower(1);
                     }
                 })
-                .setDone(() -> shootTime.milliseconds() >= 15000)
+                .setDone(() -> shootTime.milliseconds() >= 7000)
                 .setEnd(interrupted -> {
                     outtake.setVelocity(0);
                     intake.setPower(0);

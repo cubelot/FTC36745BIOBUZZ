@@ -135,7 +135,7 @@ public class MecanumTeleOp extends LinearOpMode {
             Left Trigger: Outtake only
             Right Trigger: slow transfer
              */
-            if (gamepad2.a) {
+            if (gamepad1.a) {
                 rev = -1;
             } else {
                 rev = 1;
