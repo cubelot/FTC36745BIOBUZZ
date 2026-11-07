@@ -2,6 +2,10 @@ package org.firstinspires.ftc.teamcode.Auton;
 
 import static com.pedropathing.api.Paths.curve;
 import static com.pedropathing.ivy.Scheduler.schedule;
+import static com.pedropathing.ivy.commands.Commands.instant;
+import static com.pedropathing.ivy.commands.Commands.waitMs;
+import static com.pedropathing.ivy.groups.Groups.sequential;
+import static com.pedropathing.ivy.pedro.PedroCommands.follow;
 
 import com.pedropathing.api.PoseFactory;
 import com.pedropathing.follower.Follower;
@@ -77,11 +81,15 @@ public class Comp1Auton extends OpMode {
 
     @Override
     public void start() {
-        schedule(shoot());
-        if(isShootDone == true) {
-            follower.follow(path1());
-        }
+        schedule(
+                sequential(
+                        shoot(),
+                        follow(follower, path1())
+                )
+        );
+
     }
+
     @Override
     public void loop() {
         follower.update();
@@ -97,14 +105,14 @@ public class Comp1Auton extends OpMode {
     }
 
 
-    public Command shoot() {
+    /*public Command shoot() {
         return Command.build()
                 .setStart(() -> {
                     shootTime.reset();
                     outtake.setVelocity(1440);
                     if(shootTime.milliseconds() >= 3000) {
-                    intake.setPower(1);
-                    transfer.setPower(1);
+
+                    transfer.setPower(0.55);
                     }
                 })
                 .setDone(() -> shootTime.milliseconds() >= 7000)
@@ -114,6 +122,19 @@ public class Comp1Auton extends OpMode {
                     transfer.setPower(0);
                     isShootDone = true;
                 });
+    }*/
+    public Command shoot() {
+        return sequential(
+                instant(() -> outtake.setVelocity(1440)),
+                waitMs(3000),
+                instant(() -> transfer.setPower(0.6)),
+                waitMs(4000),
+                instant(() -> {
+                    outtake.setVelocity(0);
+                    transfer.setPower(0);
+                    isShootDone = true;
+                } )
+        );
     }
 }
 
