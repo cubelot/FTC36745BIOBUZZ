@@ -5,6 +5,7 @@ import static com.pedropathing.ivy.Scheduler.schedule;
 import static com.pedropathing.ivy.commands.Commands.instant;
 import static com.pedropathing.ivy.commands.Commands.waitMs;
 import static com.pedropathing.ivy.groups.Groups.sequential;
+import static com.pedropathing.ivy.pedro.PedroCommands.follow;
 
 import com.pedropathing.api.PoseFactory;
 import com.pedropathing.follower.Follower;
@@ -80,11 +81,15 @@ public class Comp1Auton extends OpMode {
 
     @Override
     public void start() {
-        schedule(shoot());
-        if(isShootDone == true) {
-            follower.follow(path1());
-        }
+        schedule(
+                sequential(
+                        shoot(),
+                        follow(follower, path1())
+                )
+        );
+
     }
+
     @Override
     public void loop() {
         follower.update();
