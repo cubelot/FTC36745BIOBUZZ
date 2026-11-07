@@ -32,7 +32,7 @@ public class flywheel extends OpMode {
     /**
      * Target velocity presets in encoder ticks per second.
      */
-    double highVelocity = 1380;
+    double highVelocity = 1440;
     double lowVelocity = 900;
 
     /**
@@ -111,12 +111,12 @@ public class flywheel extends OpMode {
 
         // D-Pad Up: Increase Feedforward gain (F) by the current step size
         if (gamepad1.dpadUpWasPressed()) {
-            F += stepsizes[stepIndex];
+            P += stepsizes[stepIndex];
         }
 
         // D-Pad Down: Decrease Feedforward gain (F) by the current step size
         if (gamepad1.dpadDownWasPressed()) {
-            F -= stepsizes[stepIndex];
+            P -= stepsizes[stepIndex];
         }
 
         if (gamepad1.right_bumper) {
@@ -129,9 +129,9 @@ public class flywheel extends OpMode {
         } else {
             intake.setPower(0);
         }
-        if (gamepad1.right_trigger_pressed) {
+        if (gamepad1.rightTriggerWasPressed()) {
             transferPower += 0.01;
-        } else if (gamepad1.left_trigger_pressed) {
+        } else if (gamepad1.leftTriggerWasPressed()) {
             transferPower -= 0.01;
         }
 

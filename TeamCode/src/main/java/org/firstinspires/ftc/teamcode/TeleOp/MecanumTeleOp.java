@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
@@ -44,7 +45,10 @@ public class MecanumTeleOp extends LinearOpMode {
         outtake.setDirection(DcMotorSimple.Direction.FORWARD);
         intake.setDirection(DcMotorSimple.Direction.FORWARD);
         transfer.setDirection(DcMotorSimple.Direction.FORWARD);
-
+        outtake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        PIDFCoefficients pidfCoefficients = new PIDFCoefficients(25.3, 0, 0, 14.65);
+        PIDFCoefficients pidfCoefficients = new PIDFCoefficients(44.55, 0, 0, 14.95);
+        outtake.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -97,23 +101,14 @@ public class MecanumTeleOp extends LinearOpMode {
             } else if (gamepad1.dpad_right && !rightBumper) {
                 power -= 0.01;
             }
-            if (volts < 12) {
-                isBelowVoltage = true;
-                vChange *= Math.pow(13/volts, 2);
-                frontLeftPower *= volts/13;
-                backLeftPower *= volts/13;
-                frontRightPower *= volts/13;
-                backRightPower *= volts/13;
-
-            } else {
-                vChange = 1;
-            }
+            vChange = 13.5/ Math.max(volts, 13.5);
 
             leftBumper = gamepad1.dpad_left;
             rightBumper = gamepad1.dpad_right;
 
             if (gamepad1.left_trigger_pressed) {
-                outtake.setPower(power*vChange);
+
+                outtake.setVelocity(1440);
             } else {
                 outtake.setPower(0);
             }
@@ -133,16 +128,9 @@ public class MecanumTeleOp extends LinearOpMode {
             Left Trigger: Outtake only
             Right Trigger: slow transfer
              */
-            if(isSlowMode == true) {
-                mode = "Slow";
-            } else {
-                mode = "Fast";
-            }
-            if (gamepad1.a) {
-                isSlowMode = true;
+            if (gamepad2.a) {
                 rev = -1;
             } else {
-                isSlowMode = false;
                 rev = 1;
             }
             if (gamepad1.right_bumper) {
@@ -164,7 +152,7 @@ public class MecanumTeleOp extends LinearOpMode {
             }
 
             if (gamepad1.left_bumper) {
-                transfer.setPower(0.6 * rev);
+                transfer.setPower(0.55 * rev);
 
             }
 

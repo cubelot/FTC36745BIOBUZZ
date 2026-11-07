@@ -4,7 +4,9 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
@@ -14,7 +16,7 @@ public class TwoControllerMecanumTeleOp extends LinearOpMode {
     DcMotor rightFront;
     DcMotor leftBack;
     DcMotor rightBack;
-    DcMotor outtake;
+    DcMotorEx outtake;
     DcMotor intake;
     DcMotor transfer;
 
@@ -31,14 +33,22 @@ public class TwoControllerMecanumTeleOp extends LinearOpMode {
         rightFront = hardwareMap.get(DcMotor.class, "rf");
         leftBack = hardwareMap.get(DcMotor.class, "lb");
         rightBack = hardwareMap.get(DcMotor.class, "rb");
-        outtake = hardwareMap.get(DcMotor.class, "Outtake");
+        outtake = hardwareMap.get(DcMotorEx.class, "Outtake");
         intake = hardwareMap.get(DcMotor.class, "Intake");
         transfer = hardwareMap.get(DcMotor.class, "Transfer");
         left = hardwareMap.get(CRServo.class, "left");
         right = hardwareMap.get(CRServo.class, "right");
         voltage = hardwareMap.get(VoltageSensor.class, "Control Hub");
         gate = hardwareMap.get(Servo.class, "gate");
-
+        leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        outtake.setDirection(DcMotorSimple.Direction.FORWARD);
+        intake.setDirection(DcMotorSimple.Direction.FORWARD);
+        transfer.setDirection(DcMotorSimple.Direction.FORWARD);
+        outtake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        PIDFCoefficients pidfCoefficients = new PIDFCoefficients(25.3, 0, 0, 14.65);
+        PIDFCoefficients pidfCoefficients = new PIDFCoefficients(44.55, 0, 0, 14.95);
+        outtake.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
         leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
         outtake.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -112,7 +122,8 @@ public class TwoControllerMecanumTeleOp extends LinearOpMode {
             rightBumper = gamepad2.dpad_right;
 
             if (gamepad2.left_trigger_pressed) {
-                outtake.setPower(power*vChange);
+
+                outtake.setVelocity(1440);
             } else {
                 outtake.setPower(0);
             }
@@ -155,7 +166,7 @@ public class TwoControllerMecanumTeleOp extends LinearOpMode {
             }
 
             if (gamepad2.left_bumper) {
-                transfer.setPower(0.6 * rev);
+                transfer.setPower(0.55 * rev);
 
             }
 
