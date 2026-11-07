@@ -1,16 +1,10 @@
-/**
- *  Heavy inspo from:
- *  @see <a href="https://www.youtube.com/watch?v=p6g8CbNj0eM&t=1266s">
- *       The Best Way to Multitask in FTC Auto (Pedro Pathing)
- *       </a>
- */
-
 package org.firstinspires.ftc.teamcode.Auton;
 
-import static com.pedropathing.api.Paths.line;
+import static com.pedropathing.api.Paths.curve;
 import static com.pedropathing.ivy.Scheduler.schedule;
 import static com.pedropathing.ivy.commands.Commands.instant;
 import static com.pedropathing.ivy.commands.Commands.waitMs;
+import static com.pedropathing.ivy.groups.Groups.race;
 import static com.pedropathing.ivy.groups.Groups.sequential;
 import static com.pedropathing.ivy.pedro.PedroCommands.follow;
 
@@ -25,98 +19,167 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 
-@Autonomous(name = "saharsh_auton_homework", group = "Practice")
-public class saharsh_auton_homework extends OpMode {
+@Autonomous(name = "Comp1Auton", group = "Competition", preselectTeleOp = "MecanumTeleOp")
+public class Comp1Auton extends OpMode {
 
-    // Path follower and pose builder
+    private static final double TARGET_VELOCITY = 1440;
+    private static final double READY_TOLERANCE = 40;
+    private static final long SPINUP_TIMEOUT = 3000;
+    private static final long FEED_MS = 4000;
+    private static final long DRIVE_TIMEOUT = 8000;
+
+    private static final double LOW_VOLTAGE = 12.25;
+    private static final double HIGH_VOLTAGE = 13;
+
+    private static final PIDFCoefficients PIDF_LOW = new PIDFCoefficients(0, 0, 0, 15.5469);
+    private static final PIDFCoefficients PIDF_MID = new PIDFCoefficients(44.5, 0, 0, 14.9469);
+    private static final PIDFCoefficients PIDF_HIGH = new PIDFCoefficients(25.3, 0, 0, 14.65);
+
+    private static final double[] START = {60, 12, 90};
+    private static final double[] CONTROL = {12, 32, 90};
+    private static final double[] END = {12, 108, 0};
+
+    private final PoseFactory p = PoseFactory.degrees();
+    private final ElapsedTime matchTime = new ElapsedTime();
+
     private Follower follower;
-    private final PoseFactory pf = PoseFactory.degrees();
+    private DcMotorEx outtake;
+    private DcMotor intake;
+    private DcMotor transfer;
+    private CRServo leftFeed;
+    private CRServo rightFeed;
+    private VoltageSensor voltage;
 
-    // Placeholder poses (x inches, y inches, heading degrees)
-    private final Pose startPose = pf.of(9, 9, 90);
-    private final Pose shootPose = pf.of(50, 50, 45);
-    private final Pose parkPose  = pf.of(36, 24, 90);
+    private boolean red = false;
+    private String stage = "init";
 
-    // Motors and feeder servos
-    private DcMotor outtake, intake, transfer;
-    private CRServo leftFeed, rightFeed;
+    private Pose pose(double[] a) {
+        return red ? p.of(144 - a[0], a[1], 180 - a[2]) : p.of(a[0], a[1], a[2]);
+    }
 
-    // Paths
-    private Path saharshShooter() { return line(startPose, shootPose).linear(startPose, shootPose); }
-    private Path saharshPark()  { return line(shootPose, parkPose).linear(shootPose, parkPose); }
+    public Path parkPath() {
+        return curve(pose(START), pose(CONTROL), pose(END)).linear(pose(START), pose(END));
+    }
 
     @Override
     public void init() {
-        // Bulk read mode for hub efficiency
         for (LynxModule hub : hardwareMap.getAll(LynxModule.class)) {
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
 
-        // Capitalized names match the TeleOps
-        outtake   = hardwareMap.get(DcMotor.class, "Outtake");
-        intake    = hardwareMap.get(DcMotor.class, "Intake");
-        transfer  = hardwareMap.get(DcMotor.class, "Transfer");
-        leftFeed  = hardwareMap.get(CRServo.class, "left");
+        outtake = hardwareMap.get(DcMotorEx.class, "Outtake");
+        intake = hardwareMap.get(DcMotor.class, "Intake");
+        transfer = hardwareMap.get(DcMotor.class, "Transfer");
+        leftFeed = hardwareMap.get(CRServo.class, "left");
         rightFeed = hardwareMap.get(CRServo.class, "right");
+        voltage = hardwareMap.get(VoltageSensor.class, "Control Hub");
 
-        // Reset scheduler and start at startPose
+        intake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        outtake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        outtake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
         Scheduler.reset();
         follower = Constants.create(hardwareMap);
-        follower.setPose(startPose);
+    }
+
+    @Override
+    public void init_loop() {
+        if (gamepad1.x) red = false;
+        if (gamepad1.b) red = true;
+
+        telemetry.addData("Alliance", red ? "RED" : "BLUE");
+        telemetry.addLine("X = BLUE, B = RED");
+        telemetry.addData("Battery", "%.2f V", voltage.getVoltage());
+        telemetry.update();
     }
 
     @Override
     public void start() {
-        // Run the auton steps
+        applyPidf();
+        follower.setPose(pose(START));
+        matchTime.reset();
         schedule(routine());
     }
 
-    // Main step-by-step auton sequence
+    private void applyPidf() {
+        double v = voltage.getVoltage();
+        PIDFCoefficients chosen = v <= LOW_VOLTAGE ? PIDF_LOW : v >= HIGH_VOLTAGE ? PIDF_HIGH : PIDF_MID;
+        outtake.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, chosen);
+    }
+
+    private boolean flywheelReady() {
+        return Math.abs(outtake.getVelocity() - TARGET_VELOCITY) <= READY_TOLERANCE;
+    }
+
+    private Command waitForFlywheel() {
+        return Command.build()
+                .setStart(() -> {})
+                .setDone(this::flywheelReady)
+                .setEnd(interrupted -> {});
+    }
+
     private Command routine() {
         return sequential(
-                instant(() -> outtake.setPower(0.85)),   // spin up first
-                follow(follower, saharshShooter()),             // drive to shooting spot
-                waitMs(1000),                            // let the flywheel settle
-                instant(this::feedOn),
-                waitMs(4000),                            // shoot
-                instant(this::allOff),
-                follow(follower, saharshPark())               // park
+                instant(() -> {
+                    stage = "spin-up";
+                    outtake.setVelocity(TARGET_VELOCITY);
+                }),
+                race(waitForFlywheel(), waitMs(SPINUP_TIMEOUT)),
+                instant(() -> {
+                    stage = "feeding";
+                    feedOn();
+                }),
+                waitMs(FEED_MS),
+                instant(() -> {
+                    stage = "parking";
+                    allOff();
+                }),
+                race(follow(follower, parkPath()), waitMs(DRIVE_TIMEOUT)),
+                instant(() -> stage = "done")
         );
     }
 
-    // Turn on feeder/intake
     private void feedOn() {
-        transfer.setPower(0.8);
-        intake.setPower(1.0);
-        leftFeed.setPower(1.0);
-        rightFeed.setPower(-1.0);
+        intake.setPower(1);
+        transfer.setPower(1);
+        leftFeed.setPower(1);
+        rightFeed.setPower(-1);
     }
 
-    // Turn off all motors
     private void allOff() {
-        outtake.setPower(0);
-        transfer.setPower(0);
+        outtake.setVelocity(0);
         intake.setPower(0);
+        transfer.setPower(0);
         leftFeed.setPower(0);
         rightFeed.setPower(0);
     }
 
     @Override
     public void loop() {
-        // Update follower and run scheduled steps
         follower.update();
         Scheduler.execute();
-        telemetry.addLine("running");
+
+        telemetry.addData("Stage", stage);
+        telemetry.addData("Time", "%.1f s", matchTime.seconds());
+        telemetry.addData("Flywheel", "%.0f / %.0f", outtake.getVelocity(), TARGET_VELOCITY);
         telemetry.update();
     }
 
     @Override
     public void stop() {
-        // Reset scheduler and turn off motors on stop
         Scheduler.reset();
-        if (outtake != null) allOff();
+        if (outtake != null) outtake.setPower(0);
+        if (intake != null) intake.setPower(0);
+        if (transfer != null) transfer.setPower(0);
+        if (leftFeed != null) leftFeed.setPower(0);
+        if (rightFeed != null) rightFeed.setPower(0);
     }
 }
