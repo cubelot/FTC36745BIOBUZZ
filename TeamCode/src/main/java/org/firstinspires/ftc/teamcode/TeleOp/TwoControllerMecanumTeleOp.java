@@ -68,17 +68,15 @@ public class TwoControllerMecanumTeleOp extends LinearOpMode {
         double vChange = 1;
 
 
+
         int rev = 1;
         mPower = 1;
 
         power = 0.75;
-        boolean isSlowMode = false;
 
 
         boolean leftBumper = false;
         boolean rightBumper = false;
-        boolean isBelowVoltage = false;
-        String mode = "Fast";
 
         waitForStart();
 
@@ -105,8 +103,8 @@ public class TwoControllerMecanumTeleOp extends LinearOpMode {
 
             vChange = 13.5/ Math.max(volts, 13.5);
 
-            leftBumper = gamepad1.dpad_left;
-            rightBumper = gamepad1.dpad_right;
+            leftBumper = gamepad2.dpad_left;
+            rightBumper = gamepad2.dpad_right;
 
             if (gamepad2.left_trigger_pressed) {
 
@@ -142,7 +140,6 @@ public class TwoControllerMecanumTeleOp extends LinearOpMode {
                 right.setPower(-1*rev);
             } else {
                 intake.setPower(0);
-                transfer.setPower(0);
                 left.setPower(0);
                 right.setPower(0);
 
@@ -156,6 +153,8 @@ public class TwoControllerMecanumTeleOp extends LinearOpMode {
             if (gamepad2.left_bumper) {
                 transfer.setPower(0.55 * rev);
 
+            } else {
+                transfer.setPower(0);
             }
 
             double rpm = (outtake.getVelocity() / 28) * 60;
@@ -163,11 +162,11 @@ public class TwoControllerMecanumTeleOp extends LinearOpMode {
 
             telemetry.addLine("its running");
             telemetry.addData("power", power);
-            telemetry.addData("isBelowVoltage", isBelowVoltage);
+            telemetry.addData("isBelowVoltage", 1);
             telemetry.addData("volts", volts);
             telemetry.addData("velocity", outtake.getVelocity());
             telemetry.addData("rpm", rpm);
-            telemetry.addData("Mode", mode);
+            telemetry.addData("Mode", 1);
             telemetry.update();
         }
     }

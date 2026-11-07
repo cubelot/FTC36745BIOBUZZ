@@ -161,7 +161,15 @@ public class MecanumTeleOp extends LinearOpMode {
             if (gamepad1.left_bumper) {
                 transfer.setPower(0.55 * rev);
 
+            } else {
+                transfer.setPower(0);
             }
+//
+//            if(voltage.getVoltage() < 12.25) {
+//                isBelowVoltage = true;
+//            } else {
+//                isBelowVoltage = false;
+//            }
 
             double rpm = (outtake.getVelocity() / 28) * 60;
 
