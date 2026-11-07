@@ -9,6 +9,7 @@ import com.pedropathing.ivy.Command;
 import com.pedropathing.ivy.Scheduler;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -18,6 +19,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 
+@Autonomous(name = "Comp1Auton")
 public class Comp1Auton extends OpMode {
 
     private Follower follower;
@@ -46,9 +48,9 @@ public class Comp1Auton extends OpMode {
 
     @Override
     public void init() {
-        outtake = hardwareMap.get(DcMotorEx.class, "outtake");
-        intake = hardwareMap.get(DcMotor.class, "intake");
-        transfer = hardwareMap.get(DcMotor.class, "transfer");
+        outtake = hardwareMap.get(DcMotorEx.class, "Outtake");
+        intake = hardwareMap.get(DcMotor.class, "Intake");
+        transfer = hardwareMap.get(DcMotor.class, "Transfer");
         intake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         outtake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -96,10 +98,12 @@ public class Comp1Auton extends OpMode {
                 .setStart(() -> {
                     shootTime.reset();
                     outtake.setVelocity(1440);
+                    if(shootTime.milliseconds() >= 5000) {
                     intake.setPower(1);
                     transfer.setPower(1);
+                    }
                 })
-                .setDone(() -> shootTime.milliseconds() >= 10000)
+                .setDone(() -> shootTime.milliseconds() >= 15000)
                 .setEnd(interrupted -> {
                     outtake.setVelocity(0);
                     intake.setPower(0);

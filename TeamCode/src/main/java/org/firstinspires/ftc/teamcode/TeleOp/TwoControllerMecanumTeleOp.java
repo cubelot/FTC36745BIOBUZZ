@@ -22,9 +22,9 @@ public class TwoControllerMecanumTeleOp extends LinearOpMode {
 
     CRServo left;
     CRServo right;
-
-    VoltageSensor voltage;
     Servo gate;
+    private VoltageSensor voltage;
+
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -46,15 +46,16 @@ public class TwoControllerMecanumTeleOp extends LinearOpMode {
         intake.setDirection(DcMotorSimple.Direction.FORWARD);
         transfer.setDirection(DcMotorSimple.Direction.FORWARD);
         outtake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//        PIDFCoefficients pidfCoefficients = new PIDFCoefficients(25.3, 0, 0, 14.65);
-        PIDFCoefficients pidfCoefficients = new PIDFCoefficients(44.55, 0, 0, 14.95);
-        outtake.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
-        leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
-        leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
-        outtake.setDirection(DcMotorSimple.Direction.FORWARD);
-        intake.setDirection(DcMotorSimple.Direction.FORWARD);
-        transfer.setDirection(DcMotorSimple.Direction.FORWARD);
-
+        PIDFCoefficients pidfCoefficients1 = new PIDFCoefficients(44.5, 0, 0, 14.9469);
+        PIDFCoefficients pidfCoefficients2 = new PIDFCoefficients(0, 0, 0, 15.5469);
+        PIDFCoefficients pidfCoefficients3 = new PIDFCoefficients(25.3, 0, 0, 14.65);
+        if(voltage.getVoltage() <= 12.25) {
+            outtake.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients2);
+        } else if (voltage.getVoltage() >= 13){
+            outtake.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients3);
+        } else {
+            outtake.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients1);
+        }
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -70,21 +71,21 @@ public class TwoControllerMecanumTeleOp extends LinearOpMode {
         mPower = 1;
 
         power = 0.75;
+        boolean isSlowMode = false;
 
 
         boolean leftBumper = false;
         boolean rightBumper = false;
         boolean isBelowVoltage = false;
-
+        String mode = "Fast";
 
         waitForStart();
 
         if(isStopRequested()) return;
 
 
+
         while(opModeIsActive()) {
-
-
             double y = -gamepad1.left_stick_y;
             double x = gamepad1.left_stick_x * 1.1;
             double rx = gamepad1.right_stick_x;
@@ -100,26 +101,11 @@ public class TwoControllerMecanumTeleOp extends LinearOpMode {
             rightFront.setPower(frontRightPower);
             rightBack.setPower(backRightPower);
 
-            if (gamepad2.dpad_left && !leftBumper) {
-                power += 0.01;
 
-            } else if (gamepad2.dpad_right && !rightBumper) {
-                power -= 0.01;
-            }
-            if (volts < 12) {
-                isBelowVoltage = true;
-                vChange *= Math.pow(13/volts, 2);
-                frontLeftPower *= volts/13;
-                backLeftPower *= volts/13;
-                frontRightPower *= volts/13;
-                backRightPower *= volts/13;
+            vChange = 13.5/ Math.max(volts, 13.5);
 
-            } else {
-                vChange = 1;
-            }
-
-            leftBumper = gamepad2.dpad_left;
-            rightBumper = gamepad2.dpad_right;
+            leftBumper = gamepad1.dpad_left;
+            rightBumper = gamepad1.dpad_right;
 
             if (gamepad2.left_trigger_pressed) {
 
@@ -149,6 +135,7 @@ public class TwoControllerMecanumTeleOp extends LinearOpMode {
                 rev = 1;
             }
             if (gamepad2.right_bumper) {
+
                 intake.setPower(1*rev);
                 left.setPower(1*rev);
                 right.setPower(-1*rev);
@@ -170,17 +157,17 @@ public class TwoControllerMecanumTeleOp extends LinearOpMode {
 
             }
 
+            double rpm = (outtake.getVelocity() / 28) * 60;
+
 
             telemetry.addLine("its running");
             telemetry.addData("power", power);
             telemetry.addData("isBelowVoltage", isBelowVoltage);
             telemetry.addData("volts", volts);
+            telemetry.addData("velocity", outtake.getVelocity());
+            telemetry.addData("rpm", rpm);
+            telemetry.addData("Mode", mode);
             telemetry.update();
-
-            telemetry.update();
-
-
         }
-
     }
 }
