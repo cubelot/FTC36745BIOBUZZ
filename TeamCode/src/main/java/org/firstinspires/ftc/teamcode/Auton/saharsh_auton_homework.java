@@ -29,7 +29,7 @@ import org.firstinspires.ftc.teamcode.pedro.Constants;
 @Autonomous(name = "Comp1Auton", group = "Competition", preselectTeleOp = "MecanumTeleOp")
 public class Comp1Auton extends OpMode {
 
-    private static final double TARGET_VELOCITY = 1440;
+    private static final double TARGET_VELOCITY = 1447.5;
     private static final double READY_TOLERANCE = 40;
     private static final long SPINUP_TIMEOUT = 3000;
     private static final long FEED_MS = 4000;
