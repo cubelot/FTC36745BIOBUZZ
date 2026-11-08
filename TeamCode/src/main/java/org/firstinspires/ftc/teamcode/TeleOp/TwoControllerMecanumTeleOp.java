@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.TeleOp;
 
+import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -10,7 +11,9 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
-@TeleOp
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+
+@TeleOp (name = "Two Controller Mecanum TeleOp")
 public class TwoControllerMecanumTeleOp extends LinearOpMode {
     DcMotor leftFront;
     DcMotor rightFront;
@@ -20,12 +23,10 @@ public class TwoControllerMecanumTeleOp extends LinearOpMode {
     DcMotorEx outtake;
     DcMotor intake;
     DcMotor transfer;
-
     CRServo left;
     CRServo right;
     Servo gate;
     private VoltageSensor voltage;
-
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -50,9 +51,9 @@ public class TwoControllerMecanumTeleOp extends LinearOpMode {
         PIDFCoefficients pidfCoefficients1 = new PIDFCoefficients(44.5, 0, 0, 14.9469);
         PIDFCoefficients pidfCoefficients2 = new PIDFCoefficients(0, 0, 0, 15.5469);
         PIDFCoefficients pidfCoefficients3 = new PIDFCoefficients(25.3, 0, 0, 14.65);
-        if(voltage.getVoltage() <= 12.25) {
+        if (voltage.getVoltage() <= 12.25) {
             outtake.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients2);
-        } else if (voltage.getVoltage() >= 13){
+        } else if (voltage.getVoltage() >= 13) {
             outtake.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients3);
         } else {
             outtake.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients1);
@@ -68,7 +69,6 @@ public class TwoControllerMecanumTeleOp extends LinearOpMode {
         double vChange = 1;
 
 
-
         int rev = 1;
         mPower = 1;
 
@@ -80,11 +80,10 @@ public class TwoControllerMecanumTeleOp extends LinearOpMode {
 
         waitForStart();
 
-        if(isStopRequested()) return;
+        if (isStopRequested()) return;
 
 
-
-        while(opModeIsActive()) {
+        while (opModeIsActive()) {
             double y = -gamepad1.left_stick_y;
             double x = gamepad1.left_stick_x * 1.1;
             double rx = gamepad1.right_stick_x;
@@ -101,7 +100,7 @@ public class TwoControllerMecanumTeleOp extends LinearOpMode {
             rightBack.setPower(backRightPower);
 
 
-            vChange = 13.5/ Math.max(volts, 13.5);
+            vChange = 13.5 / Math.max(volts, 13.5);
 
             leftBumper = gamepad2.dpad_left;
             rightBumper = gamepad2.dpad_right;
@@ -135,9 +134,9 @@ public class TwoControllerMecanumTeleOp extends LinearOpMode {
             }
             if (gamepad2.right_bumper) {
 
-                intake.setPower(1*rev);
-                left.setPower(1*rev);
-                right.setPower(-1*rev);
+                intake.setPower(1 * rev);
+                left.setPower(1 * rev);
+                right.setPower(-1 * rev);
             } else {
                 intake.setPower(0);
                 left.setPower(0);
@@ -160,14 +159,14 @@ public class TwoControllerMecanumTeleOp extends LinearOpMode {
             double rpm = (outtake.getVelocity() / 28) * 60;
 
 
-            telemetry.addLine("its running");
-            telemetry.addData("power", power);
-            telemetry.addData("isBelowVoltage", 1);
-            telemetry.addData("volts", volts);
-            telemetry.addData("velocity", outtake.getVelocity());
-            telemetry.addData("rpm", rpm);
-            telemetry.addData("Mode", 1);
-            telemetry.update();
+                telemetry.addLine("its running");
+                telemetry.addData("power", power);
+                telemetry.addData("isBelowVoltage", 1);
+                telemetry.addData("volts", volts);
+                telemetry.addData("velocity", outtake.getVelocity());
+                telemetry.addData("rpm", rpm);
+                telemetry.addData("Mode", 1);
+                telemetry.update();
+            }
         }
-    }
 }

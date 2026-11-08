@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
-@TeleOp
+@TeleOp (name = "Mecanum TeleOp")
 public class MecanumTeleOp extends LinearOpMode {
     DcMotor leftFront;
     DcMotor rightFront;

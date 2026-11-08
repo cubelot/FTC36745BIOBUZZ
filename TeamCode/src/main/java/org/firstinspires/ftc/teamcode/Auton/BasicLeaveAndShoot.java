@@ -49,7 +49,7 @@ public class BasicLeaveAndShoot extends LinearOpMode {
             intake.setPower(0);
             telemetry.addLine("pollen has been shot!");
             telemetry.update();
-            //done
+            //done\//
         }
 
 
