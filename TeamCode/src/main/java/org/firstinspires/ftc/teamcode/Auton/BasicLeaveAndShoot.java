@@ -15,12 +15,10 @@ public class BasicLeaveAndShoot extends LinearOpMode {
         DcMotor rightBack = hardwareMap.get(DcMotor.class ,"rb");
         leftFront.setDirection(DcMotor.Direction.REVERSE);
         leftBack.setDirection(DcMotor.Direction.REVERSE);
-        DcMotor outtake = hardwareMap.get(DcMotor.class, "outtake");
-        DcMotor intake = hardwareMap.get(DcMotor.class, "intake");
-        DcMotor transfer = hardwareMap.get(DcMotor.class, "transfer");
+
 
         double power = 0.75;
-        long strafeTime = 4000;
+        long strafeTime = 600;
         long shootTime = 10000;
         waitForStart();
         if(isStopRequested()) return;
@@ -39,15 +37,6 @@ public class BasicLeaveAndShoot extends LinearOpMode {
             leftBack.setPower(0);
             rightBack.setPower(0);
             telemetry.addLine("finished strafing");
-            telemetry.update();
-            sleep(1000);
-            outtake.setPower(0.85);
-            intake.setPower(1);
-            transfer.setPower(1);
-            sleep(shootTime);
-            outtake.setPower(0);
-            intake.setPower(0);
-            telemetry.addLine("pollen has been shot!");
             telemetry.update();
             //done
         }

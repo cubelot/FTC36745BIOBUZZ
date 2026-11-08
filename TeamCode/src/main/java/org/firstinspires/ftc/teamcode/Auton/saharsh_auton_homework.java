@@ -27,7 +27,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 
 @Autonomous(name = "Comp1Auton", group = "Competition", preselectTeleOp = "MecanumTeleOp")
-public class Comp1Auton extends OpMode {
+public class saharsh_auton_homework extends OpMode {
 
     private static final double TARGET_VELOCITY = 1447.5;
     private static final double READY_TOLERANCE = 40;
