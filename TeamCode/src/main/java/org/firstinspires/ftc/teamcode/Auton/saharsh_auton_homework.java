@@ -1,3 +1,4 @@
+/*
 package org.firstinspires.ftc.teamcode.Auton;
 
 import static com.pedropathing.api.Paths.curve;
@@ -185,3 +186,4 @@ public class saharsh_auton_homework extends OpMode {
         if (rightFeed != null) rightFeed.setPower(0);
     }
 }
+*/
