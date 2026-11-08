@@ -35,7 +35,7 @@ public class BasicLeaveAndShoot extends OpMode {
 
 
     private final Pose startPose = p.of(12, 132, 0);
-    private final Pose endPose = p.of(12, 112, 0);
+    private final Pose endPose = p.of(12, 117, 0);
 
     private boolean isShootDone = false;
 
