@@ -93,6 +93,11 @@ public class Comp1Auton extends OpMode {
     @Override
     public void loop() {
         follower.update();
+        telemetry.addData("Voltage", voltage.getVoltage());
+        telemetry.addData("isShootDone", isShootDone);
+        telemetry.addData("velocity", outtake.getVelocity());
+        telemetry.update();
+
         Scheduler.execute();
     }
 
@@ -125,16 +130,20 @@ public class Comp1Auton extends OpMode {
     }*/
     public Command shoot() {
         return sequential(
-                instant(() -> outtake.setVelocity(1440)),
-                waitMs(3000),
+                instant(() -> outtake.setVelocity(1420)),
+                waitMs(5000),
                 instant(() -> transfer.setPower(0.6)),
-                waitMs(4000),
+                waitMs(5000),
                 instant(() -> {
                     outtake.setVelocity(0);
                     transfer.setPower(0);
                     isShootDone = true;
+                    intake.setPower(-1);
+                    waitMs(7000);
                 } )
         );
     }
+
+
 }
 
