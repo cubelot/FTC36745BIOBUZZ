@@ -13,6 +13,9 @@ import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
+private GoBildaPinpointDriver odo;
+
+
 @TeleOp (name = "Mecanum TeleOp")
 public class MecanumTeleOp extends LinearOpMode {
     DcMotor leftFront;
@@ -43,6 +46,13 @@ public class MecanumTeleOp extends LinearOpMode {
         right = hardwareMap.get(CRServo.class, "right");
         voltage = hardwareMap.get(VoltageSensor.class, "Control Hub");
         gate = hardwareMap.get(Servo.class, "gate");
+
+        odo =  hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
+        odo.setOffsets(1, -6, DistanceUnit.INCH);
+        odo.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
+        odo.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.REVERSED, GoBildaPinpointDriver.EncoderDirection.REVERSED);
+        odo.resetPosAndIMU();
+
         leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
         outtake.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -175,6 +185,10 @@ public class MecanumTeleOp extends LinearOpMode {
 //            }
 
             double rpm = (outtake.getVelocity() / 28) * 60;
+
+
+            odo.update();
+            double heading = odo.getHeading(AngleUnit.RADIANS);
 
 
             telemetry.addLine("its running");
