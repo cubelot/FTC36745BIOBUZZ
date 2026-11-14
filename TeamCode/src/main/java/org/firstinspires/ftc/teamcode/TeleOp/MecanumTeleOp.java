@@ -13,10 +13,121 @@ import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
-private GoBildaPinpointDriver odo;
+
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 
 @TeleOp (name = "Mecanum TeleOp")
+public class ThreeWheelOdometry extends OpMode {
+
+    // ---- Tune these for your robot ----
+    private static final double TICKS_PER_REV = 2000;     // e.g. REV Through Bore / goBILDA
+    private static final double WHEEL_RADIUS_IN = 0.944;  // 48 mm wheel
+    private static final double TRACK_WIDTH_IN = 12.0;    // distance between left and right wheels
+    private static final double FORWARD_OFFSET_IN = 4.0;  // center wheel offset from robot center
+
+    private static final double INCHES_PER_TICK =
+            (2.0 * Math.PI * WHEEL_RADIUS_IN) / TICKS_PER_REV;
+
+    // Drive motors
+    private DcMotor frontLeft, frontRight, backLeft, backRight;
+
+    // Odometry encoders (plugged into motor/encoder ports)
+    private DcMotorEx leftEncoder, rightEncoder, centerEncoder;
+
+    // Pose state
+    private double xPos = 0;       // inches
+    private double yPos = 0;       // inches
+    private double heading = 0;    // radians
+
+    // Previous encoder readings (ticks)
+    private int prevLeftPos = 0;
+    private int prevRightPos = 0;
+    private int prevCenterPos = 0;
+
+    @Override
+    public void init() {
+        // Use the names from your robot configuration
+        frontLeft = hardwareMap.get(DcMotor.class, "frontLeft");
+        frontRight = hardwareMap.get(DcMotor.class, "frontRight");
+        backLeft = hardwareMap.get(DcMotor.class, "backLeft");
+        backRight = hardwareMap.get(DcMotor.class, "backRight");
+
+        frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        leftEncoder = hardwareMap.get(DcMotorEx.class, "leftEncoder");
+        rightEncoder = hardwareMap.get(DcMotorEx.class, "rightEncoder");
+        centerEncoder = hardwareMap.get(DcMotorEx.class, "centerEncoder");
+
+        // Reverse as needed so that:
+        //   - left/right both increase when driving forward
+        //   - center increases when strafing left
+        // leftEncoder.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        for (DcMotorEx enc : new DcMotorEx[]{leftEncoder, rightEncoder, centerEncoder}) {
+            enc.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            enc.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        }
+
+        telemetry.addLine("Initialized");
+        telemetry.update();
+    }
+
+    @Override
+    public void loop() {
+        updateOdometry();
+        driveMecanum();
+
+        telemetry.addData("x (in)", "%.2f", xPos);
+        telemetry.addData("y (in)", "%.2f", yPos);
+        telemetry.addData("heading (deg)", "%.2f", Math.toDegrees(heading));
+        telemetry.update();
+    }
+
+    private void driveMecanum() {
+        double y = -gamepad1.left_stick_y;   // forward
+        double x = gamepad1.left_stick_x * 1.1; // strafe (counteract imperfect strafing)
+        double rx = gamepad1.right_stick_x;  // turn
+
+        double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1.0);
+
+        frontLeft.setPower((y + x + rx) / denominator);
+        backLeft.setPower((y - x + rx) / denominator);
+        frontRight.setPower((y - x - rx) / denominator);
+        backRight.setPower((y + x - rx) / denominator);
+    }
+
+    private void updateOdometry() {
+        int leftPos = leftEncoder.getCurrentPosition();
+        int rightPos = rightEncoder.getCurrentPosition();
+        int centerPos = centerEncoder.getCurrentPosition();
+
+        // Change in each encoder, converted to inches
+        double deltaLeftPos = (leftPos - prevLeftPos) * INCHES_PER_TICK;
+        double deltaRightPos = (rightPos - prevRightPos) * INCHES_PER_TICK;
+        double deltaCenterPos = (centerPos - prevCenterPos) * INCHES_PER_TICK;
+
+        double phi = (deltaLeftPos - deltaRightPos) / TRACK_WIDTH_IN;
+        double deltaMiddlePos = (deltaLeftPos + deltaRightPos) / 2.0;
+        double deltaPerpPos = deltaCenterPos - FORWARD_OFFSET_IN * phi;
+
+        double deltaX = deltaMiddlePos * Math.cos(heading) - deltaPerpPos * Math.sin(heading);
+        double deltaY = deltaMiddlePos * Math.sin(heading) + deltaPerpPos * Math.cos(heading);
+
+        xPos += deltaX;
+        yPos += deltaY;
+        heading += phi;
+
+        prevLeftPos = leftPos;
+        prevRightPos = rightPos;
+        prevCenterPos = centerPos;
+    }
+}
+
+private GoBildaPinpointDriver odo;
+
+
 public class MecanumTeleOp extends LinearOpMode {
     DcMotor leftFront;
     DcMotor rightFront;
