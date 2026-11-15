@@ -1,8 +1,10 @@
 package org.firstinspires.ftc.teamcode.TeleOp;
 
+import com.pedropathing.math.Pose;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.pedropathing.follower.Follower;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -12,6 +14,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.teamcode.pedro.Constants;
 
 @TeleOp (name = "Two Controller Mecanum TeleOp")
 public class TwoControllerMecanumTeleOp extends LinearOpMode {
@@ -19,6 +22,7 @@ public class TwoControllerMecanumTeleOp extends LinearOpMode {
     DcMotor rightFront;
     DcMotor leftBack;
     DcMotor rightBack;
+    Follower follower;
     //
     DcMotorEx outtake;
     DcMotor intake;
@@ -48,6 +52,7 @@ public class TwoControllerMecanumTeleOp extends LinearOpMode {
         intake.setDirection(DcMotorSimple.Direction.FORWARD);
         transfer.setDirection(DcMotorSimple.Direction.FORWARD);
         outtake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        follower = Constants.create(hardwareMap);
         PIDFCoefficients pidfCoefficients1 = new PIDFCoefficients(44.5, 0, 0, 14.9469);
         PIDFCoefficients pidfCoefficients2 = new PIDFCoefficients(0, 0, 0, 15.5469);
         PIDFCoefficients pidfCoefficients3 = new PIDFCoefficients(25.3, 0, 0, 14.65);
@@ -62,6 +67,8 @@ public class TwoControllerMecanumTeleOp extends LinearOpMode {
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        //follower.setPose(new Pose(x));
+
 
         double power;
         double mPower;
@@ -98,6 +105,7 @@ public class TwoControllerMecanumTeleOp extends LinearOpMode {
             leftBack.setPower(backLeftPower);
             rightFront.setPower(frontRightPower);
             rightBack.setPower(backRightPower);
+            //if(follower.pose().heading() < )
 
 
             vChange = 13.5 / Math.max(volts, 13.5);
@@ -107,7 +115,8 @@ public class TwoControllerMecanumTeleOp extends LinearOpMode {
 
             if (gamepad2.left_trigger_pressed) {
 
-                outtake.setVelocity(1440);
+                    outtake.setVelocity(1440);
+
             } else {
                 outtake.setPower(0);
             }

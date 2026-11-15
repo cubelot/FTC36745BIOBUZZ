@@ -1,4 +1,5 @@
 package org.firstinspires.ftc.teamcode.TeleOp;
+import com.pedropathing.follower.Follower;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -6,12 +7,17 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
+import org.firstinspires.ftc.teamcode.pedro.Constants;
+
 @TeleOp (name = "Mecanum TeleOp")
 public class MecanumTeleOp extends LinearOpMode {
+
+    private Follower follower;
     DcMotor leftFront;
     DcMotor rightFront;
     DcMotor leftBack;
@@ -19,6 +25,8 @@ public class MecanumTeleOp extends LinearOpMode {
     DcMotorEx outtake;
     DcMotor intake;
     DcMotor transfer;
+
+
 
     CRServo left;
     CRServo right;
@@ -45,6 +53,7 @@ public class MecanumTeleOp extends LinearOpMode {
         outtake.setDirection(DcMotorSimple.Direction.FORWARD);
         intake.setDirection(DcMotorSimple.Direction.FORWARD);
         transfer.setDirection(DcMotorSimple.Direction.FORWARD);
+        follower = Constants.create(hardwareMap);
         outtake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         PIDFCoefficients pidfCoefficients1 = new PIDFCoefficients(44.5, 0, 0, 14.9469);
         PIDFCoefficients pidfCoefficients2 = new PIDFCoefficients(0, 0, 0, 15.5469);
