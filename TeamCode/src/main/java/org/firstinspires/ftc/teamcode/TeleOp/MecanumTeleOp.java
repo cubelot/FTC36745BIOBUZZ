@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.TeleOp;
 import com.pedropathing.follower.Follower;
 
+import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -11,6 +12,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
+import org.firstinspires.ftc.teamcode.TeleOp.Macro;
 
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 
@@ -69,6 +71,7 @@ public class MecanumTeleOp extends LinearOpMode {
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        follower.setPose(new Pose(12, 100, Math.toRadians(90)));
 
         double power;
         double mPower;
@@ -86,6 +89,8 @@ public class MecanumTeleOp extends LinearOpMode {
         boolean leftBumper = false;
         boolean rightBumper = false;
         boolean isBelowVoltage = false;
+        boolean turnComplete = false;
+        double rpm;
         String mode = "Fast";
 
         waitForStart();
@@ -104,12 +109,13 @@ public class MecanumTeleOp extends LinearOpMode {
             double backLeftPower = (y - x + rx) / denominator * mPower;
             double frontRightPower = (y - x - rx) / denominator * mPower;
             double backRightPower = (y + x - rx) / denominator * mPower;
+            if(!gamepad1.x) {
 
-            leftFront.setPower(frontLeftPower);
-            leftBack.setPower(backLeftPower);
-            rightFront.setPower(frontRightPower);
-            rightBack.setPower(backRightPower);
-
+                leftFront.setPower(frontLeftPower);
+                leftBack.setPower(backLeftPower);
+                rightFront.setPower(frontRightPower);
+                rightBack.setPower(backRightPower);
+            }
 
             if (gamepad1.dpad_left && !leftBumper) {
                 power += 0.01;
@@ -180,7 +186,19 @@ public class MecanumTeleOp extends LinearOpMode {
 //                isBelowVoltage = false;
 //            }
 
-            double rpm = (outtake.getVelocity() / 28) * 60;
+            rpm = (outtake.getVelocity() / 28) * 60;
+
+            if(gamepad1.xWasPressed()) {
+                if((follower.pose().x() < 48 || follower.pose().x() > 84) || (follower.pose().y() > 24 && follower.pose().y() < 120)) {
+                    gamepad1.rumble(1000);
+                }
+                Macro.turnToHive(follower);
+            } else if (!gamepad1.x){
+                follower.manual();
+            }
+
+
+
 
 
             telemetry.addLine("its running");
@@ -191,6 +209,7 @@ public class MecanumTeleOp extends LinearOpMode {
             telemetry.addData("rpm", rpm);
             telemetry.addData("Mode", mode);
             telemetry.update();
+            follower.update();
         }
     }
 }
