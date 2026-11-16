@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
+import org.firstinspires.ftc.teamcode.TeleOp.Macro;
 //h
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
@@ -101,11 +102,12 @@ public class TwoControllerMecanumTeleOp extends LinearOpMode {
             double backLeftPower = (y - x + rx) / denominator * mPower;
             double frontRightPower = (y - x - rx) / denominator * mPower;
             double backRightPower = (y + x - rx) / denominator * mPower;
-
-            leftFront.setPower(frontLeftPower);
-            leftBack.setPower(backLeftPower);
-            rightFront.setPower(frontRightPower);
-            rightBack.setPower(backRightPower);
+            if(!gamepad1.x) {
+                leftFront.setPower(frontLeftPower);
+                leftBack.setPower(backLeftPower);
+                rightFront.setPower(frontRightPower);
+                rightBack.setPower(backRightPower);
+            }
             //if(follower.pose().heading() < )
 
 
@@ -167,6 +169,16 @@ public class TwoControllerMecanumTeleOp extends LinearOpMode {
             }
 
             double rpm = (outtake.getVelocity() / 28) * 60;
+
+
+            if(gamepad1.xWasPressed()) {
+                if((follower.pose().x() < 48 || follower.pose().x() > 84) || (follower.pose().y() > 24 && follower.pose().y() < 120)) {
+                    gamepad1.rumble(1000);
+                }
+                Macro.turnToHive(follower);
+            } else if (!gamepad1.x){
+                follower.manual();
+            }
 
 
                 telemetry.addLine("its running");
