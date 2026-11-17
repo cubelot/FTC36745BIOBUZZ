@@ -18,10 +18,4 @@ public class Macro {
         }
     }
 
-    public static void flowerArm(Servo servo) {
-    servo.setPosition(0.05);
-    }
-    public static void unflowerArm(Servo servo) {
-    servo.setPosition(0.65);
-    }
 }
