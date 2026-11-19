@@ -172,9 +172,6 @@ public class TwoControllerMecanumTeleOp extends LinearOpMode {
 
 
             if(gamepad1.xWasPressed()) {
-                if((follower.pose().x() < 48 || follower.pose().x() > 84) || (follower.pose().y() > 24 && follower.pose().y() < 120)) {
-                    gamepad1.rumble(1000);
-                }
                 Macro.turnToHive(follower);
             } else if (!gamepad1.x){
                 follower.manual();

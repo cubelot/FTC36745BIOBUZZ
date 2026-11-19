@@ -1,8 +1,10 @@
 package org.firstinspires.ftc.teamcode.sensors;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 
+@TeleOp
 public class servoTest extends OpMode {
     private Servo flowerArm1;
     private Servo flowerArm2;

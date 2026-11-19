@@ -189,9 +189,6 @@ public class MecanumTeleOp extends LinearOpMode {
             rpm = (outtake.getVelocity() / 28) * 60;
 
             if(gamepad1.xWasPressed()) {
-                if((follower.pose().x() < 48 || follower.pose().x() > 84) || (follower.pose().y() > 24 && follower.pose().y() < 120)) {
-                    gamepad1.rumble(1000);
-                }
                 Macro.turnToHive(follower);
             } else if (!gamepad1.x){
                 follower.manual();
