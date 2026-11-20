@@ -27,11 +27,12 @@ public class MecanumTeleOp extends LinearOpMode {
     DcMotorEx outtake;
     DcMotor intake;
     DcMotor transfer;
-
-
-
-    CRServo left;
-    CRServo right;
+    Servo flower1;
+    Servo flower2;
+//
+//
+//    CRServo left;
+//    CRServo right;
     Servo gate;
     private VoltageSensor voltage;
 
@@ -46,10 +47,12 @@ public class MecanumTeleOp extends LinearOpMode {
         outtake = hardwareMap.get(DcMotorEx.class, "Outtake");
         intake = hardwareMap.get(DcMotor.class, "Intake");
         transfer = hardwareMap.get(DcMotor.class, "Transfer");
-        left = hardwareMap.get(CRServo.class, "left");
-        right = hardwareMap.get(CRServo.class, "right");
+//        left = hardwareMap.get(CRServo.class, "left");
+//        right = hardwareMap.get(CRServo.class, "right");
         voltage = hardwareMap.get(VoltageSensor.class, "Control Hub");
         gate = hardwareMap.get(Servo.class, "gate");
+        flower1 = hardwareMap.get(Servo.class, "flower1");
+        flower2 = hardwareMap.get(Servo.class, "flower2");
         leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
         outtake.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -77,14 +80,14 @@ public class MecanumTeleOp extends LinearOpMode {
         double mPower;
         double volts = voltage.getVoltage();
         double vChange = 1;
-
+        boolean flowerToggle = false;
 
         int rev = 1;
         mPower = 1;
 
         power = 0.75;
         boolean isSlowMode = false;
-
+        boolean flower = false;
 
         boolean leftBumper = false;
         boolean rightBumper = false;
@@ -155,22 +158,32 @@ public class MecanumTeleOp extends LinearOpMode {
             } else {
                 rev = 1;
             }
+            if(gamepad1.y && !flower){
+                flowerToggle = !flowerToggle;
+            }
+
+            if (flowerToggle) {
+//
+                flower1.setPosition(0.4);
+                flower2.setPosition(0.6);
+
+            } else   {
+                flower1.setPosition(1);
+                flower2.setPosition(0);
+            }
+            flower = gamepad1.y;
             if (gamepad1.right_bumper) {
 
                 intake.setPower(1*rev);
-                left.setPower(1*rev);
-                right.setPower(-1*rev);
             } else {
                 intake.setPower(0);
                 transfer.setPower(0);
-                left.setPower(0);
-                right.setPower(0);
 
             }
             if (gamepad1.b) {
-                gate.setPosition(0.2);
-            } else {
                 gate.setPosition(0.5);
+            } else {
+                gate.setPosition(0.8);
             }
 
             if (gamepad1.left_bumper) {
@@ -205,6 +218,9 @@ public class MecanumTeleOp extends LinearOpMode {
             telemetry.addData("velocity", outtake.getVelocity());
             telemetry.addData("rpm", rpm);
             telemetry.addData("Mode", mode);
+            telemetry.addData("flower1", flower1.getPosition());
+            telemetry.addData("flower2", flower2.getPosition());
+            telemetry.addData("flowertoggle", flowerToggle);
             telemetry.update();
             follower.update();
         }

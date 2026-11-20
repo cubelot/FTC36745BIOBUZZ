@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.sensors;
+package org.firstinspires.ftc.teamcode.Sensors;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -6,17 +6,17 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 @TeleOp
 public class servoTest extends OpMode {
-    private Servo flowerArm1;
-    private Servo flowerArm2;
+    private Servo flower1;
+    private Servo flower2;
 
     private double val = 0;
 
     @Override
     public void init() {
-        flowerArm1 = hardwareMap.servo.get("flowerArm1");
-        flowerArm2 = hardwareMap.servo.get("flowerArm2");
+        flower1 = hardwareMap.servo.get("flower1");
+        flower2 = hardwareMap.servo.get("flower2");
 
-        flowerArm1.setDirection(Servo.Direction.REVERSE);
+//        flower1.setDirection(Servo.Direction.REVERSE);
 
     }
     @Override
@@ -27,8 +27,8 @@ public class servoTest extends OpMode {
             val -= 0.01;
         }
 
-        flowerArm1.setPosition(1 - val);
-        flowerArm2.setPosition(val);
+        flower1.setPosition(1.2 - val);
+        flower2.setPosition(val);
         telemetry.addData("angle (between 1 and 0)", val);
 
     }
