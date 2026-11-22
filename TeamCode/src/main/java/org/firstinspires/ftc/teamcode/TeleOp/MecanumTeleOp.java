@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.TeleOp;
 
+import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -10,7 +11,10 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
-@TeleOp (name = "Mecanum TeleOp")
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+
+@TeleOp(name = "Mecanum TeleOp")
 public class MecanumTeleOp extends LinearOpMode {
     DcMotor leftFront;
     DcMotor rightFront;
@@ -25,6 +29,8 @@ public class MecanumTeleOp extends LinearOpMode {
     Servo gate;
     private VoltageSensor voltage;
 
+    // Pinpoint computes the odometry (x, y, heading) for us
+    private GoBildaPinpointDriver odo;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -40,39 +46,41 @@ public class MecanumTeleOp extends LinearOpMode {
         right = hardwareMap.get(CRServo.class, "right");
         voltage = hardwareMap.get(VoltageSensor.class, "Control Hub");
         gate = hardwareMap.get(Servo.class, "gate");
+
+        odo = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
+        odo.setOffsets(1, -6, DistanceUnit.INCH);
+        odo.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
+        odo.setEncoderDirections(
+                GoBildaPinpointDriver.EncoderDirection.REVERSED,
+                GoBildaPinpointDriver.EncoderDirection.REVERSED);
+        odo.resetPosAndIMU();
+
         leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
         outtake.setDirection(DcMotorSimple.Direction.FORWARD);
         intake.setDirection(DcMotorSimple.Direction.FORWARD);
         transfer.setDirection(DcMotorSimple.Direction.FORWARD);
         outtake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
         PIDFCoefficients pidfCoefficients1 = new PIDFCoefficients(44.5, 0, 0, 14.9469);
         PIDFCoefficients pidfCoefficients2 = new PIDFCoefficients(0, 0, 0, 15.5469);
         PIDFCoefficients pidfCoefficients3 = new PIDFCoefficients(25.3, 0, 0, 14.65);
-        if(voltage.getVoltage() <= 12.25) {
+        if (voltage.getVoltage() <= 12.25) {
             outtake.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients2);
-        } else if (voltage.getVoltage() >= 13){
+        } else if (voltage.getVoltage() >= 13) {
             outtake.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients3);
         } else {
             outtake.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients1);
         }
+
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        double power;
-        double mPower;
-        double volts = voltage.getVoltage();
-        double vChange = 1;
-
-
+        double power = 0.75;
+        double mPower = 1;
         int rev = 1;
-        mPower = 1;
-
-        power = 0.75;
-        boolean isSlowMode = false;
-
 
         boolean leftBumper = false;
         boolean rightBumper = false;
@@ -81,11 +89,10 @@ public class MecanumTeleOp extends LinearOpMode {
 
         waitForStart();
 
-        if(isStopRequested()) return;
+        if (isStopRequested()) return;
 
-
-
-        while(opModeIsActive()) {
+        while (opModeIsActive()) {
+            // ---- Mecanum drive ----
             double y = -gamepad1.left_stick_y;
             double x = gamepad1.left_stick_x * 1.1;
             double rx = gamepad1.right_stick_x;
@@ -101,20 +108,20 @@ public class MecanumTeleOp extends LinearOpMode {
             rightFront.setPower(frontRightPower);
             rightBack.setPower(backRightPower);
 
-
+            // ---- Power tweaking ----
             if (gamepad1.dpad_left && !leftBumper) {
                 power += 0.01;
-
             } else if (gamepad1.dpad_right && !rightBumper) {
                 power -= 0.01;
             }
-            vChange = 13.5/ Math.max(volts, 13.5);
-
             leftBumper = gamepad1.dpad_left;
             rightBumper = gamepad1.dpad_right;
 
-            if (gamepad1.left_trigger_pressed) {
+            // Read voltage every loop (it was only read once before)
+            double volts = voltage.getVoltage();
 
+            // ---- Outtake / slow mode ----
+            if (gamepad1.left_trigger_pressed) {
                 outtake.setVelocity(1440);
             } else {
                 outtake.setPower(0);
@@ -125,54 +132,42 @@ public class MecanumTeleOp extends LinearOpMode {
                 mPower = 1;
             }
 
-
             /*
             controls:
             A: reverse mode
-            right button: intake
+            right bumper: intake
             b: open gate
-            left button: transfer
+            left bumper: transfer
             Left Trigger: Outtake only
-            Right Trigger: slow transfer
+            Right Trigger: slow drive
              */
-            if (gamepad1.a) {
-                rev = -1;
-            } else {
-                rev = 1;
-            }
-            if (gamepad1.right_bumper) {
+            rev = gamepad1.a ? -1 : 1;
 
-                intake.setPower(1*rev);
-                left.setPower(1*rev);
-                right.setPower(-1*rev);
+            if (gamepad1.right_bumper) {
+                intake.setPower(1 * rev);
+                left.setPower(1 * rev);
+                right.setPower(-1 * rev);
             } else {
                 intake.setPower(0);
-                transfer.setPower(0);
                 left.setPower(0);
                 right.setPower(0);
+            }
 
-            }
-            if (gamepad1.b) {
-                gate.setPosition(0.2);
-            } else {
-                gate.setPosition(0.5);
-            }
+            gate.setPosition(gamepad1.b ? 0.2 : 0.5);
 
             if (gamepad1.left_bumper) {
                 transfer.setPower(0.55 * rev);
-
             } else {
                 transfer.setPower(0);
             }
-//
-//            if(voltage.getVoltage() < 12.25) {
-//                isBelowVoltage = true;
-//            } else {
-//                isBelowVoltage = false;
-//            }
 
             double rpm = (outtake.getVelocity() / 28) * 60;
 
+            // ---- Odometry from Pinpoint ----
+            odo.update();
+            double xPos = odo.getPosX(DistanceUnit.INCH);
+            double yPos = odo.getPosY(DistanceUnit.INCH);
+            double heading = odo.getHeading(AngleUnit.RADIANS);
 
             telemetry.addLine("its running");
             telemetry.addData("power", power);
@@ -181,6 +176,9 @@ public class MecanumTeleOp extends LinearOpMode {
             telemetry.addData("velocity", outtake.getVelocity());
             telemetry.addData("rpm", rpm);
             telemetry.addData("Mode", mode);
+            telemetry.addData("x (in)", "%.2f", xPos);
+            telemetry.addData("y (in)", "%.2f", yPos);
+            telemetry.addData("heading (deg)", "%.2f", Math.toDegrees(heading));
             telemetry.update();
         }
     }

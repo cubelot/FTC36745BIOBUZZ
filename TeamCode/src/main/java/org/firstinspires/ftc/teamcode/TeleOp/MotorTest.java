@@ -4,6 +4,8 @@ import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
+
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
@@ -14,6 +16,9 @@ public class MotorTest extends LinearOpMode {
     private DcMotor rightFront;
     private DcMotor leftBack;
     private DcMotor rightBack;
+    private Servo flowerServo1;
+    private Servo flowerServo2;
+
 
     //pinpoint
     private GoBildaPinpointDriver odo;
@@ -24,6 +29,9 @@ public class MotorTest extends LinearOpMode {
         rightFront = hardwareMap.get(DcMotor.class, "rf");
         leftBack = hardwareMap.get(DcMotor.class, "lb");
         rightBack = hardwareMap.get(DcMotor.class ,"rb");
+        flowerServo1 = hardwareMap.get(Servo.class, "flower1");
+        flowerServo2 = hardwareMap.get(Servo.class, "flower2");
+
         odo =  hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
         odo.setOffsets(-3, -3.5, DistanceUnit.INCH);
         odo.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
