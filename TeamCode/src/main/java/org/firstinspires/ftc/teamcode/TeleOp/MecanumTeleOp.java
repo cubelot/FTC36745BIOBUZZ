@@ -24,8 +24,8 @@ public class MecanumTeleOp extends LinearOpMode {
     DcMotor intake;
     DcMotor transfer;
 
-    CRServo left;
-    CRServo right;
+    Servo flower1;
+    Servo flower2;
     Servo gate;
     private VoltageSensor voltage;
 
@@ -42,11 +42,10 @@ public class MecanumTeleOp extends LinearOpMode {
         outtake = hardwareMap.get(DcMotorEx.class, "Outtake");
         intake = hardwareMap.get(DcMotor.class, "Intake");
         transfer = hardwareMap.get(DcMotor.class, "Transfer");
-        left = hardwareMap.get(CRServo.class, "left");
-        right = hardwareMap.get(CRServo.class, "right");
         voltage = hardwareMap.get(VoltageSensor.class, "Control Hub");
         gate = hardwareMap.get(Servo.class, "gate");
-
+        flower1 = hardwareMap.get(Servo.class, "flower1");
+        flower2 = hardwareMap.get(Servo.class, "flower2");
         odo = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
         odo.setOffsets(1, -6, DistanceUnit.INCH);
         odo.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
@@ -82,6 +81,8 @@ public class MecanumTeleOp extends LinearOpMode {
         double mPower = 1;
         int rev = 1;
 
+        boolean flower = false;
+        boolean flowerToggle = false;
         boolean leftBumper = false;
         boolean rightBumper = false;
         boolean isBelowVoltage = false;
@@ -142,21 +143,30 @@ public class MecanumTeleOp extends LinearOpMode {
             Right Trigger: slow drive
              */
             rev = gamepad1.a ? -1 : 1;
-
-            if (gamepad1.right_bumper) {
-                intake.setPower(1 * rev);
-                left.setPower(1 * rev);
-                right.setPower(-1 * rev);
-            } else {
-                intake.setPower(0);
-                left.setPower(0);
-                right.setPower(0);
+            if(gamepad1.y && !flower){
+                flowerToggle = !flowerToggle;
             }
 
-            gate.setPosition(gamepad1.b ? 0.2 : 0.5);
+            if (flowerToggle) {
+//
+                flower1.setPosition(0.4);
+                flower2.setPosition(0.6);
+
+            } else   {
+                flower1.setPosition(1);
+                flower2.setPosition(0);
+            }
+            flower = gamepad1.y;
+            if (gamepad1.right_bumper) {
+                intake.setPower(1 * rev);
+            } else {
+                intake.setPower(0);
+            }
+
+            gate.setPosition(gamepad1.b ? 0.5 : 0.8);
 
             if (gamepad1.left_bumper) {
-                transfer.setPower(0.55 * rev);
+                transfer.setPower(0.5 * rev);
             } else {
                 transfer.setPower(0);
             }
