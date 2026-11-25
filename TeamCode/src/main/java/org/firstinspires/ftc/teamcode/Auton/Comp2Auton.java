@@ -69,10 +69,10 @@ public class Comp2Auton extends OpMode {
     private final PoseFactory poseFactory = PoseFactory.degrees();
 
 
-    private final Pose shoot1 = poseFactory.of(60, 11.9758, 90);
-    private final Pose shoot1ToGarden = poseFactory.of(9.3456, 11.0818, 90);
-    private final Pose shoot1ToGardenControl1 = poseFactory.of(31.9897, 25.6839, 0);
-    private final Pose gardenToShoot2Start = poseFactory.of(9.3456, 11.0818, 270);
+    private final Pose shoot1 = poseFactory.of(60, 12, 270);
+    private final Pose shoot1ToGarden = poseFactory.of(9.3456, 10, 270);
+    private final Pose shoot1ToGardenControl1 = poseFactory.of(32, 24, 0);
+    private final Pose gardenToShoot2Start = poseFactory.of(9.3456, 11.0818, 90);
     private final Pose gardenToShoot2 = poseFactory.of(60.42, 131.9784, 270);
     private final Pose gardenToShoot2Control1 = poseFactory.of(56.4328, 38.5049, 0);
     private final Pose gardenToShoot2Control2 = poseFactory.of(0, 87.8898, 0);
@@ -82,7 +82,7 @@ public class Comp2Auton extends OpMode {
     private final Pose shoot2flower = poseFactory.of(47.9982, 126.4339, 270);
     private final Pose shoot2flowerControl1 = poseFactory.of(54.4373, 116.1268, 0);
     private final Pose flowerToShoot2Start = poseFactory.of(47.9982, 126.4339, 90);
-    private final Pose flowerToShoot2 = poseFactory.of(60.0345, 131.6852, 270);
+    private final Pose flowerToShoot2 = poseFactory.of(60.0345, 131.6852, 90);
     private final Pose flowerToShoot2Control1 = poseFactory.of(54.6609, 115.7468, 0);
     private final Pose shoot2parkStart = poseFactory.of(60.0345, 131.6852, 270);
     private final Pose shoot2park = poseFactory.of(9.9416, 94.8113, 270);
@@ -280,7 +280,7 @@ public class Comp2Auton extends OpMode {
 
     public Command shoot() {
         return sequential(
-                instant(() -> outtake.setPower(0.68)),
+                instant(() -> outtake.setPower(0.69)),
                 waitMs(5000),
                 instant(() -> {
                     transfer.setPower(0.5);
