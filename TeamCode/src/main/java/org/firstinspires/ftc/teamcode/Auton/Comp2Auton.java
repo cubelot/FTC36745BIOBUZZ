@@ -39,12 +39,13 @@ public class Comp2Auton extends OpMode {
     private DcMotor outtake;
     private DcMotor intake;
     private DcMotor transfer;
-//    private CRServo left;
-//    private CRServo right;
+
 
 
     private Servo flowerServo1;
     private Servo flowerServo2;
+
+    private Servo gate;
 
 
     //cute
@@ -67,60 +68,42 @@ public class Comp2Auton extends OpMode {
 
 
     private final PoseFactory poseFactory = PoseFactory.degrees();
-
-
     private final Pose shoot1 = poseFactory.of(60, 12, 270);
-    private final Pose shoot1ToGarden = poseFactory.of(9.3456, 10, 270);
-    private final Pose shoot1ToGardenControl1 = poseFactory.of(32, 24, 0);
-    private final Pose gardenToShoot2Start = poseFactory.of(9.3456, 11.0818, 90);
-    private final Pose gardenToShoot2 = poseFactory.of(60.42, 131.9784, 270);
-    private final Pose gardenToShoot2Control1 = poseFactory.of(56.4328, 38.5049, 0);
-    private final Pose gardenToShoot2Control2 = poseFactory.of(0, 87.8898, 0);
-    private final Pose gardenToShoot2Control3 = poseFactory.of(25.4666, 110.9095, 0);
-    private final Pose gardenToShoot2Control4 = poseFactory.of(65.6565, 111.6322, 0);
-    private final Pose shoot2flowerStart = poseFactory.of(60.42, 131.9784, 270);
-    private final Pose shoot2flower = poseFactory.of(47.9982, 126.4339, 270);
-    private final Pose shoot2flowerControl1 = poseFactory.of(54.4373, 116.1268, 0);
-    private final Pose flowerToShoot2Start = poseFactory.of(47.9982, 126.4339, 90);
-    private final Pose flowerToShoot2 = poseFactory.of(60.0345, 131.6852, 90);
-    private final Pose flowerToShoot2Control1 = poseFactory.of(54.6609, 115.7468, 0);
-    private final Pose shoot2parkStart = poseFactory.of(60.0345, 131.6852, 270);
-    private final Pose shoot2park = poseFactory.of(9.9416, 94.8113, 270);
-    private final Pose shoot2parkControl1 = poseFactory.of(82.7055, 113.9435, 0);
+    private final Pose garden = poseFactory.of(9, 10, 270);
+    private final Pose shoot2 = poseFactory.of(60.42, 131.9784, 270);
+    private final Pose flower = poseFactory.of(47.9982, 126.4339, 270);
+    private final Pose park   = poseFactory.of(9.9416, 94.8113, 270);
+
+    private final Pose gardenCtrl  = poseFactory.of(32, 24, 0);
+    private final Pose shoot2Ctrl1 = poseFactory.of(56.4328, 38.5049, 0);
+    private final Pose shoot2Ctrl2 = poseFactory.of(0, 87.8898, 0);
+    private final Pose shoot2Ctrl3 = poseFactory.of(25.4666, 110.9095, 0);
+    private final Pose shoot2Ctrl4 = poseFactory.of(65.6565, 111.6322, 0);
+    private final Pose flowerCtrl  = poseFactory.of(54.4373, 116.1268, 0);
+    private final Pose flowerBackCtrl = poseFactory.of(54.6609, 115.7468, 0);
+    private final Pose parkCtrl    = poseFactory.of(82.7055, 113.9435, 0);
+
     public class AutonPaths {
-
-
-
-
-
-
-
-
         public Path shoot1ToGarden() {
-            return curve(shoot1, shoot1ToGardenControl1, shoot1ToGarden).linear(shoot1, shoot1ToGarden);
+            return curve(shoot1, gardenCtrl, garden).linear(shoot1, garden);
         }
-
 
         public Path gardenToShoot2() {
-            return curve(gardenToShoot2Start, gardenToShoot2Control1, gardenToShoot2Control2, gardenToShoot2Control3, gardenToShoot2Control4, gardenToShoot2).linear(gardenToShoot2Start, gardenToShoot2);
+            return curve(garden, shoot2Ctrl1, shoot2Ctrl2, shoot2Ctrl3, shoot2Ctrl4, shoot2).linear(garden, shoot2);
         }
-
 
         public Path shoot2flower() {
-            return curve(shoot2flowerStart, shoot2flowerControl1, shoot2flower).linear(shoot2flowerStart, shoot2flower);
+            return curve(shoot2, flowerCtrl, flower).linear(shoot2, flower);
         }
-
 
         public Path flowerToShoot2() {
-            return curve(flowerToShoot2Start, flowerToShoot2Control1, flowerToShoot2).linear(flowerToShoot2Start, flowerToShoot2);
+            return curve(flower, flowerBackCtrl, shoot2).linear(flower, shoot2);
         }
-
 
         public Path shoot2park() {
-            return curve(shoot2parkStart, shoot2parkControl1, shoot2park).linear(shoot2parkStart, shoot2park);
+            return curve(shoot2, parkCtrl, park).linear(shoot2, park);
         }
     }
-
 
 
 
@@ -142,6 +125,8 @@ public class Comp2Auton extends OpMode {
 
 
         voltage = hardwareMap.get(VoltageSensor.class, "Control Hub");
+
+        gate = hardwareMap.get(Servo.class, "gate");
 
 
         outtake.setDirection(DcMotor.Direction.FORWARD);
@@ -215,7 +200,6 @@ public class Comp2Auton extends OpMode {
                         follow(follower, paths.shoot2flower()),
                         flowerIntake(),
                         follow(follower, paths.flowerToShoot2()),
-                        shoot(),
                         follow(follower, paths.shoot2park())
                 )
         );
@@ -285,12 +269,14 @@ public class Comp2Auton extends OpMode {
                 instant(() -> {
                     transfer.setPower(0.5);
                     intake.setPower(1);
+                    gate.setPosition(0.2);
                 }),
                 waitMs(3000),
                 instant(() -> {
                     outtake.setPower(0);
                     transfer.setPower(0);
                     intake.setPower(0);
+                    gate.setPosition(0.5);
                     isShootDone = true;
                 } )
         );
