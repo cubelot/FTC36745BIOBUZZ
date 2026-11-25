@@ -33,33 +33,18 @@ import org.firstinspires.ftc.teamcode.pedro.Constants;
 @Autonomous(name = "Comp 2 Auton")
 //built by anay
 public class Comp2Auton extends OpMode {
-
-
-
-
     private Follower follower;
     private final PoseFactory p = PoseFactory.degrees();
-
-
-
-
     private final ElapsedTime shootTime = new ElapsedTime();
-
-
-
-
-    private DcMotorEx outtake;
+    private DcMotor outtake;
     private DcMotor intake;
     private DcMotor transfer;
-
-
-
-
 //    private CRServo left;
 //    private CRServo right;
 
 
-    private Servo flowerServo;
+    private Servo flowerServo1;
+    private Servo flowerServo2;
 
 
     //cute
@@ -74,9 +59,8 @@ public class Comp2Auton extends OpMode {
 
 
 
-    private boolean isShoot1Done = false;
+    private boolean isShootDone = false;
     private boolean isIntakeDone = false;
-    private boolean isShoot2Done = false;
     private AutonPaths paths = new AutonPaths();
 
 
@@ -86,7 +70,7 @@ public class Comp2Auton extends OpMode {
 
 
     private final Pose shoot1 = poseFactory.of(60, 11.9758, 90);
-    private final Pose shoot1ToGarden = poseFactory.of(9.3456, 11.0818, 270);
+    private final Pose shoot1ToGarden = poseFactory.of(9.3456, 11.0818, 90);
     private final Pose shoot1ToGardenControl1 = poseFactory.of(31.9897, 25.6839, 0);
     private final Pose gardenToShoot2Start = poseFactory.of(9.3456, 11.0818, 270);
     private final Pose gardenToShoot2 = poseFactory.of(60.42, 131.9784, 270);
@@ -95,7 +79,7 @@ public class Comp2Auton extends OpMode {
     private final Pose gardenToShoot2Control3 = poseFactory.of(25.4666, 110.9095, 0);
     private final Pose gardenToShoot2Control4 = poseFactory.of(65.6565, 111.6322, 0);
     private final Pose shoot2flowerStart = poseFactory.of(60.42, 131.9784, 270);
-    private final Pose shoot2flower = poseFactory.of(47.9982, 126.4339, 90);
+    private final Pose shoot2flower = poseFactory.of(47.9982, 126.4339, 270);
     private final Pose shoot2flowerControl1 = poseFactory.of(54.4373, 116.1268, 0);
     private final Pose flowerToShoot2Start = poseFactory.of(47.9982, 126.4339, 90);
     private final Pose flowerToShoot2 = poseFactory.of(60.0345, 131.6852, 270);
@@ -104,10 +88,6 @@ public class Comp2Auton extends OpMode {
     private final Pose shoot2park = poseFactory.of(9.9416, 94.8113, 270);
     private final Pose shoot2parkControl1 = poseFactory.of(82.7055, 113.9435, 0);
     public class AutonPaths {
-
-
-        private final PoseFactory p = PoseFactory.degrees();
-        private Follower follower;
 
 
 
@@ -152,12 +132,13 @@ public class Comp2Auton extends OpMode {
 
 
 
-        outtake = hardwareMap.get(DcMotorEx.class, "Outtake");
+        outtake = hardwareMap.get(DcMotor.class, "Outtake");
         intake = hardwareMap.get(DcMotor.class, "Intake");
         transfer = hardwareMap.get(DcMotor.class, "Transfer");
 
 
-        flowerServo = hardwareMap.get(Servo.class, "flowerServo");
+        flowerServo1 = hardwareMap.get(Servo.class, "flower1");
+        flowerServo2 = hardwareMap.get(Servo.class, "flower2");
 
 
         voltage = hardwareMap.get(VoltageSensor.class, "Control Hub");
@@ -170,8 +151,6 @@ public class Comp2Auton extends OpMode {
 
 
 
-        intake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        outtake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
 
 
@@ -194,7 +173,7 @@ public class Comp2Auton extends OpMode {
                 new PIDFCoefficients(25.3, 0, 0, 14.65);
 
 
-        if (voltage.getVoltage() <= 12.25) {
+        /*if (voltage.getVoltage() <= 12.25) {
             outtake.setPIDFCoefficients(
                     DcMotor.RunMode.RUN_USING_ENCODER,
                     pidfCoefficients2
@@ -209,7 +188,7 @@ public class Comp2Auton extends OpMode {
                     DcMotor.RunMode.RUN_USING_ENCODER,
                     pidfCoefficients1
             );
-        }
+        }*/
 
 
         // Initialize scheduler
@@ -228,15 +207,15 @@ public class Comp2Auton extends OpMode {
     public void start() {
         schedule(
                 sequential(
-                        shoot1(),
+                        shoot(),
                         follow(follower, paths.shoot1ToGarden()),
                         intakeGarden(),
                         follow(follower, paths.gardenToShoot2()),
-                        shoot2(),
+                        shoot(),
                         follow(follower, paths.shoot2flower()),
                         flowerIntake(),
                         follow(follower, paths.flowerToShoot2()),
-                        shoot2(),
+                        shoot(),
                         follow(follower, paths.shoot2park())
                 )
         );
@@ -255,7 +234,7 @@ public class Comp2Auton extends OpMode {
 
 
         telemetry.addData("Voltage", voltage.getVoltage());
-        telemetry.addData("Outtake Velocity", outtake.getVelocity());
+
 
 
         telemetry.update();
@@ -282,22 +261,7 @@ public class Comp2Auton extends OpMode {
     }
 
 
-    public Command shoot1() {
-        return sequential(
-                instant(() -> outtake.setVelocity(1420)),
-                waitMs(5000),
-                instant(() -> transfer.setPower(0.6)),
-                waitMs(3000),
-                instant(() -> {
-                    outtake.setVelocity(0);
-                    transfer.setPower(0);
-                    isShoot1Done = true;
-                    intake.setPower(-1);
-                } )
-        );
 
-
-    }
     public Command intakeGarden() {
         return sequential(
                 instant(() -> {
@@ -314,16 +278,20 @@ public class Comp2Auton extends OpMode {
     }
 
 
-    public Command shoot2() {
+    public Command shoot() {
         return sequential(
-                instant(() -> outtake.setVelocity(1420)),
+                instant(() -> outtake.setPower(0.68)),
                 waitMs(5000),
-                instant(() -> transfer.setPower(0.6)),
+                instant(() -> {
+                    transfer.setPower(0.5);
+                    intake.setPower(1);
+                }),
                 waitMs(3000),
                 instant(() -> {
-                    outtake.setVelocity(0);
+                    outtake.setPower(0);
                     transfer.setPower(0);
-                    isShoot2Done = true;
+                    intake.setPower(0);
+                    isShootDone = true;
                 } )
         );
 
@@ -333,10 +301,12 @@ public class Comp2Auton extends OpMode {
 
     public Command flowerIntake() {
         return sequential(
-                instant(() -> flowerServo.setPosition(0.5)),
+                instant(() -> flowerServo1.setPosition(0.4)),
+                instant(() -> flowerServo2.setPosition(0.6)),
                 instant(() -> intake.setPower(1)),
                 waitMs(5000),
-                instant(() -> flowerServo.setPosition(0))
+                instant(() -> flowerServo1.setPosition(1)),
+                instant(() -> flowerServo2.setPosition(0))
         );
     }
 
