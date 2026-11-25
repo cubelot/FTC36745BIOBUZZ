@@ -221,7 +221,6 @@ public class Comp2Auton extends OpMode {
                         shoot(),
                         follow(follower, paths.shoot1ToGarden1()),
 
-                        // slow paths (speed limits are built into the paths)
                         follow(follower, paths.garden1ToGarden2()),
                         intakeGarden(),
                         follow(follower, paths.gardenToShoot2()),
