@@ -5,8 +5,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 @TeleOp
 public class ColorSensorTest extends OpMode {
-    TestBenchColor bench = new TestBenchColor();
-    TestBenchColor.DetectedColor detectedColor;
+    org.firstinspires.ftc.teamcode.Sensors.TestBenchColor bench = new org.firstinspires.ftc.teamcode.Sensors.TestBenchColor();
+    org.firstinspires.ftc.teamcode.Sensors.TestBenchColor.DetectedColor detectedColor;
 
 
     @Override

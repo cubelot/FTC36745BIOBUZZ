@@ -12,24 +12,46 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 public class FlywheelPowerTest extends OpMode {
 
     public DcMotor outtake;
+    public DcMotor transfer;
+    public DcMotor intake;
 
     double power = 0;
+    double transferPower = 0.6;
 
     @Override
     public void init() {
-        outtake = hardwareMap.get(DcMotorEx.class, "Outtake");
-        outtake.setPower(power); }
+        outtake = hardwareMap.get(DcMotor.class, "Outtake");
+        intake = hardwareMap.get(DcMotor.class, "Intake");
+        transfer = hardwareMap.get(DcMotor.class, "Transfer");
+         }
 
     public void loop() {
-        if (gamepad1.dpad_up) {
+        if (gamepad1.dpadUpWasPressed()) {
             power += 0.1; }
-        if (gamepad1.dpad_down) {
+        if (gamepad1.dpadDownWasPressed()) {
             power -= 0.1; }
-        if (gamepad1.dpad_right) {
+        if (gamepad1.dpadRightWasPressed()) {
             power += 0.01; }
-        if (gamepad1.dpad_left) {
+        if (gamepad1.dpadLeftWasPressed()) {
             power -= 0.01; }
+        if (gamepad1.right_bumper) {
+            transfer.setPower(transferPower);
+        } else {
+            transfer.setPower(0);
+        }
+        if (gamepad1.left_bumper) {
+            intake.setPower(1);
+        } else {
+            intake.setPower(0);
+        }
+        if (gamepad1.rightTriggerWasPressed()) {
+            transferPower += 0.01;
+        } else if (gamepad1.leftTriggerWasPressed()) {
+            transferPower -= 0.01;
+        }
+        outtake.setPower(power);
         telemetry.addData("power", power);
+        telemetry.addData("transferPower", transferPower);
         telemetry.update(); }
 
 }

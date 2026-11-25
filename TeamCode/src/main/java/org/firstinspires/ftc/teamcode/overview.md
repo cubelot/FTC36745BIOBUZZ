@@ -20,5 +20,5 @@ What We Need To Buy (For Software stuff and basic robot movement):
 - Servo Programmer (If we are going to use specifically Gobilda DUAL MODE Servos, which are probably the best ones, tho tetrix and other servos are good enough in most cases)
 - logitech camera for opencv, specifically c series
 - more motors
-- a new motorola phone or driver hub (whichever one is cheaper) in order to control the robot at a comp
+- a new motorola phone or driver hub (whichever one is cheaper) in order to control the robot at a comp (we are using captains phone)
 - 
