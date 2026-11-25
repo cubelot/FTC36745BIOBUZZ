@@ -69,12 +69,12 @@ public class Comp2Auton extends OpMode {
 
     private final PoseFactory poseFactory = PoseFactory.degrees();
     private final Pose shoot1 = poseFactory.of(60, 12, 270);
-    private final Pose garden = poseFactory.of(9, 10, 270);
+    private final Pose garden = poseFactory.of(12, 12, 270);
     private final Pose shoot2 = poseFactory.of(60, 132, 270);
     private final Pose flower = poseFactory.of(48, 126, 270);
     private final Pose park   = poseFactory.of(10, 95, 270);
 
-    private final Pose gardenCtrl  = poseFactory.of(32, 24, 0);
+    private final Pose gardenCtrl  = poseFactory.of(5, 45, 0);
     private final Pose shoot2Ctrl1 = poseFactory.of(56, 38, 0);
     private final Pose shoot2Ctrl2 = poseFactory.of(0, 88, 0);
     private final Pose shoot2Ctrl3 = poseFactory.of(26, 111, 0);
