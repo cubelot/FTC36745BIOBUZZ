@@ -19,7 +19,6 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
@@ -31,8 +30,9 @@ import org.firstinspires.ftc.teamcode.pedro.Constants;
 
 
 
-@Autonomous(name = "Anay Two Tip Auton")
-public class AnayTwoTipAuton extends OpMode {
+@Autonomous(name = "Comp 2 Auton")
+//built by anay
+public class Comp2Auton extends OpMode {
 
 
 
