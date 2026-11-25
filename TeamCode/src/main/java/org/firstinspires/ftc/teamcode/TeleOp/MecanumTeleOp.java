@@ -61,16 +61,8 @@ public class MecanumTeleOp extends LinearOpMode {
         transfer.setDirection(DcMotorSimple.Direction.FORWARD);
         outtake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        PIDFCoefficients pidfCoefficients1 = new PIDFCoefficients(44.5, 0, 0, 14.9469);
-        PIDFCoefficients pidfCoefficients2 = new PIDFCoefficients(0, 0, 0, 15.5469);
-        PIDFCoefficients pidfCoefficients3 = new PIDFCoefficients(25.3, 0, 0, 14.65);
-        if (voltage.getVoltage() <= 12.25) {
-            outtake.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients2);
-        } else if (voltage.getVoltage() >= 13) {
-            outtake.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients3);
-        } else {
-            outtake.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients1);
-        }
+        PIDFCoefficients pidfCoefficients1 = new PIDFCoefficients(30, 0, 0, 13.8);
+        outtake.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients1);
 
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -123,9 +115,9 @@ public class MecanumTeleOp extends LinearOpMode {
 
             // ---- Outtake / slow mode ----
             if (gamepad1.left_trigger_pressed) {
-                outtake.setVelocity(1440);
+                outtake.setVelocity(1480);
             } else {
-                outtake.setPower(0);
+                outtake.setVelocity(800);
             }
             if (gamepad1.right_trigger_pressed) {
                 mPower = 0.4;
