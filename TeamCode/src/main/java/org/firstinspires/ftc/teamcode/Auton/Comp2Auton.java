@@ -78,7 +78,6 @@ public class Comp2Auton extends OpMode {
     private final Pose flower = poseFactory.of(48, 126, 270);
     private final Pose park   = poseFactory.of(10, 95, 270);
 
-    private final Pose gardenCtrl  = poseFactory.of(5, 45, 0);
     private final Pose shoot2Ctrl1 = poseFactory.of(56, 38, 0);
     private final Pose shoot2Ctrl2 = poseFactory.of(0, 88, 0);
     private final Pose shoot2Ctrl3 = poseFactory.of(26, 111, 0);
@@ -95,7 +94,7 @@ public class Comp2Auton extends OpMode {
     public class AutonPaths {
         // Split into two paths so only garden1 -> garden2 is slow.
         public Path shoot1ToGarden1() {
-            return curve(shoot1, gardenCtrl, garden1).linear(shoot1, garden1);
+            return curve(shoot1, garden1).linear(shoot1, garden1);
         }
 
         public Path garden1ToGarden2() {
