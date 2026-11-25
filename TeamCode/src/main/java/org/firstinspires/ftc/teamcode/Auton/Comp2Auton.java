@@ -70,18 +70,18 @@ public class Comp2Auton extends OpMode {
     private final PoseFactory poseFactory = PoseFactory.degrees();
     private final Pose shoot1 = poseFactory.of(60, 12, 270);
     private final Pose garden = poseFactory.of(9, 10, 270);
-    private final Pose shoot2 = poseFactory.of(60.42, 131.9784, 270);
-    private final Pose flower = poseFactory.of(47.9982, 126.4339, 270);
-    private final Pose park   = poseFactory.of(9.9416, 94.8113, 270);
-//
+    private final Pose shoot2 = poseFactory.of(60, 132, 270);
+    private final Pose flower = poseFactory.of(48, 126, 270);
+    private final Pose park   = poseFactory.of(10, 95, 270);
+
     private final Pose gardenCtrl  = poseFactory.of(32, 24, 0);
-    private final Pose shoot2Ctrl1 = poseFactory.of(56.4328, 38.5049, 0);
-    private final Pose shoot2Ctrl2 = poseFactory.of(0, 87.8898, 0);
-    private final Pose shoot2Ctrl3 = poseFactory.of(25.4666, 110.9095, 0);
-    private final Pose shoot2Ctrl4 = poseFactory.of(65.6565, 111.6322, 0);
-    private final Pose flowerCtrl  = poseFactory.of(54.4373, 116.1268, 0);
-    private final Pose flowerBackCtrl = poseFactory.of(54.6609, 115.7468, 0);
-    private final Pose parkCtrl    = poseFactory.of(82.7055, 113.9435, 0);
+    private final Pose shoot2Ctrl1 = poseFactory.of(56, 38, 0);
+    private final Pose shoot2Ctrl2 = poseFactory.of(0, 88, 0);
+    private final Pose shoot2Ctrl3 = poseFactory.of(26, 111, 0);
+    private final Pose shoot2Ctrl4 = poseFactory.of(66, 112, 0);
+    private final Pose flowerCtrl  = poseFactory.of(54, 116, 0);
+    private final Pose flowerBackCtrl = poseFactory.of(54, 116, 0);
+    private final Pose parkCtrl    = poseFactory.of(83, 114, 0);
 
     public class AutonPaths {
         public Path shoot1ToGarden() {
