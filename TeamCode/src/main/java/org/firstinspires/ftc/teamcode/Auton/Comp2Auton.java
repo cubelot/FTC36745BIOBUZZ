@@ -69,7 +69,11 @@ public class Comp2Auton extends OpMode {
 
     private final PoseFactory poseFactory = PoseFactory.degrees();
     private final Pose shoot1 = poseFactory.of(60, 12, 270);
-    private final Pose garden = poseFactory.of(12, 12, 270);
+    //private final Pose garden = poseFactory.of(12, 12, 270);
+    private final Pose garden1 = poseFactory.of(8, 16, 270);
+
+    private final Pose garden2 = poseFactory.of(8, 8, 270);
+
     private final Pose shoot2 = poseFactory.of(60, 132, 270);
     private final Pose flower = poseFactory.of(48, 126, 270);
     private final Pose park   = poseFactory.of(10, 95, 270);
@@ -83,13 +87,35 @@ public class Comp2Auton extends OpMode {
     private final Pose flowerBackCtrl = poseFactory.of(54, 116, 0);
     private final Pose parkCtrl    = poseFactory.of(83, 114, 0);
 
+    // Slow-section tuning. Lower = slower.
+    private static final double SLOW_SPEED_SCALE = 0.6;   // fraction of normal path speed
+    private static final double SLOW_MAX_VEL     = 25.0;  // inches/sec cap
+    private static final double SLOW_DECEL_SCALE = 0.75;  // coasting deceleration scale
+
     public class AutonPaths {
-        public Path shoot1ToGarden() {
-            return curve(shoot1, gardenCtrl, garden).linear(shoot1, garden);
+        // Split into two paths so only garden1 -> garden2 is slow.
+        public Path shoot1ToGarden1() {
+            return curve(shoot1, gardenCtrl, garden1).linear(shoot1, garden1);
+        }
+
+        public Path garden1ToGarden2() {
+            return curve(garden1, garden2)
+                    .linear(garden1, garden2)
+                    .with(
+                            Constants.foresightConfig.maxPathSpeed.at(SLOW_SPEED_SCALE),
+                            Constants.foresightConfig.maxVelocityConstraint.at(SLOW_MAX_VEL),
+                            Constants.foresightConfig.maxDecelerationScale.at(SLOW_DECEL_SCALE)
+                    );
         }
 
         public Path gardenToShoot2() {
-            return curve(garden, shoot2Ctrl1, shoot2Ctrl2, shoot2Ctrl3, shoot2Ctrl4, shoot2).linear(garden, shoot2);
+            return curve(garden2, shoot2Ctrl1, shoot2Ctrl2, shoot2Ctrl3, shoot2Ctrl4, shoot2)
+                    .linear(garden2, shoot2)
+                    .with(
+                            Constants.foresightConfig.maxPathSpeed.at(SLOW_SPEED_SCALE),
+                            Constants.foresightConfig.maxVelocityConstraint.at(SLOW_MAX_VEL),
+                            Constants.foresightConfig.maxDecelerationScale.at(SLOW_DECEL_SCALE)
+                    );
         }
 
         public Path shoot2flower() {
@@ -193,9 +219,13 @@ public class Comp2Auton extends OpMode {
         schedule(
                 sequential(
                         shoot(),
-                        follow(follower, paths.shoot1ToGarden()),
+                        follow(follower, paths.shoot1ToGarden1()),
+
+                        // slow paths (speed limits are built into the paths)
+                        follow(follower, paths.garden1ToGarden2()),
                         intakeGarden(),
                         follow(follower, paths.gardenToShoot2()),
+
                         shoot(),
                         follow(follower, paths.shoot2flower()),
                         flowerIntake(),
@@ -298,6 +328,3 @@ public class Comp2Auton extends OpMode {
 
 
 }
-
-
-
