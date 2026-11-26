@@ -103,52 +103,24 @@ public class Comp2AutonRP extends OpMode {
 
     public class AutonPaths {
 
-        // Starting shooting position -> Garden
         public Path path1() {
-            return Paths.curve(
-                    shoot1,
-                    point1Control1,
-                    point1Control2,
-                    point1
-            ).linear(shoot1, point1);
+            return Paths.curve(shoot1, point1Control1, point1Control2, point1).linear(shoot1, point1);
         }
 
-        // Garden -> Second shooting position
         public Path garden2shoot2() {
-            return Paths.curve(
-                    point1,
-                    garden2shoot2Control1,
-                    garden2shoot2Control2,
-                    garden2shoot2Control3,
-                    shoot2Pose
-            ).linear(point1, shoot2Pose);
+            return Paths.curve(point1, garden2shoot2Control1, garden2shoot2Control2, garden2shoot2Control3, shoot2Pose).linear(point1, shoot2Pose);
         }
 
-        // Second shooting position -> Flower
         public Path shoot2flower1() {
-            return Paths.curve(
-                    shoot2Pose,
-                    shoot2flower1Control1,
-                    flower1Pose
-            ).constant(flower1Pose);
+            return Paths.curve(shoot2Pose, shoot2flower1Control1, flower1Pose).constant(flower1Pose);
         }
 
-        // Flower -> Second shooting position
         public Path flower1shoot2() {
-            return Paths.curve(
-                    flower1Pose,
-                    flower1shoot2Control1,
-                    shoot2Pose
-            ).constant(shoot2Pose);
+            return Paths.curve(flower1Pose, flower1shoot2Control1, shoot2Pose).constant(shoot2Pose);
         }
 
-        // Shooting position -> Parking position
         public Path path5() {
-            return Paths.curve(
-                    shoot2Pose,
-                    parkControl1,
-                    parkPose
-            ).constant(parkPose);
+            return Paths.curve(shoot2Pose, parkControl1, parkPose).constant(parkPose);
         }
     }
 
@@ -169,26 +141,20 @@ public class Comp2AutonRP extends OpMode {
         voltage = hardwareMap.get(VoltageSensor.class, "Control Hub");
 
 
-        // Motor directions
         outtake.setDirection(DcMotor.Direction.FORWARD);
         intake.setDirection(DcMotor.Direction.FORWARD);
         transfer.setDirection(DcMotor.Direction.FORWARD);
 
 
-        // Zero power behavior
         intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         outtake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         transfer.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
 
-        // Initialize Pedro Pathing
         follower = Constants.create(hardwareMap);
 
-        // Set starting pose
         follower.setPose(shoot1);
 
-
-        // Reset scheduler
         Scheduler.reset();
 
     }
@@ -200,31 +166,22 @@ public class Comp2AutonRP extends OpMode {
         schedule(
                 sequential(
 
-                        // Initial preload shooting
                         shoot(),
 
-                        // Travel to first garden
                         follow(follower, paths.path1()),
 
-                        // Collect from garden
                         intakeGarden(),
 
-                        // Travel to second shooting position
                         follow(follower, paths.garden2shoot2()),
 
-                        // Shoot collected artifacts
                         shoot(),
 
-                        // Travel to flower
                         follow(follower, paths.shoot2flower1()),
 
-                        // Collect flower
                         flowerIntake(),
 
-                        // Return to shooting position
                         follow(follower, paths.flower1shoot2()),
 
-                        // Park
                         follow(follower, paths.path5())
 
                 )
@@ -256,10 +213,8 @@ public class Comp2AutonRP extends OpMode {
         if (intake != null) intake.setPower(0);
         if (transfer != null) transfer.setPower(0);
 
-    }
+        }
 
-
-    // Garden intake
     public Command intakeGarden() {
 
         return sequential(
@@ -279,17 +234,15 @@ public class Comp2AutonRP extends OpMode {
     }
 
 
-    // Shooting sequence
+
     public Command shoot() {
 
         return sequential(
 
-                // Start shooter
                 instant(() -> outtake.setPower(0.69)),
 
                 waitMs(5000),
 
-                // Feed artifacts
                 instant(() -> {
                     transfer.setPower(0.5);
                     intake.setPower(1);
@@ -298,7 +251,6 @@ public class Comp2AutonRP extends OpMode {
 
                 waitMs(3000),
 
-                // Stop everything
                 instant(() -> {
                     outtake.setPower(0);
                     transfer.setPower(0);
@@ -311,7 +263,7 @@ public class Comp2AutonRP extends OpMode {
     }
 
 
-    // Flower intake
+
     public Command flowerIntake() {
 
         return sequential(
