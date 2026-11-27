@@ -14,7 +14,7 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 import org.firstinspires.ftc.teamcode.OpModeStorage;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 
-@TeleOp(name = "Better TeleOp")
+@TeleOp(name = "Better TeleOp2")
 public class BetterTeleOp2 extends OpMode {
     private Follower follower;
     DcMotorEx outtake;
@@ -25,7 +25,7 @@ public class BetterTeleOp2 extends OpMode {
     Servo flower1;
     double mPower = 1;
     int rev = 1;
-
+    boolean gamepadB = false;
     boolean flower = false;
     boolean flowerToggle = false;
 
@@ -51,8 +51,8 @@ public class BetterTeleOp2 extends OpMode {
         //Driving
         DrivePowers powers = ManualDrive.fieldCentric(
                 -gamepad1.left_stick_y * mPower,
-                gamepad1.left_stick_x * mPower,
-                gamepad1.right_stick_x * mPower,
+                -gamepad1.left_stick_x * mPower * 1.1,
+                -gamepad1.right_stick_x * mPower,
                 follower.pose().heading()
         );
         ManualDrive.driveOrHold(follower, powers);
@@ -74,7 +74,7 @@ public class BetterTeleOp2 extends OpMode {
             outtake.setVelocity(900);
         }
         if (gamepad1.right_trigger_pressed) {
-            mPower = 0.5;
+            mPower = 0.4;
         } else {
             mPower = 1;
         }
@@ -107,21 +107,27 @@ public class BetterTeleOp2 extends OpMode {
         if (gamepad2.right_bumper) {
             intake.setPower(1 * rev);
             transfer.setPower(0.8 * rev);
-            gate.setPosition(0.5);
+            gate.setPosition(0.9);
         } else if (gamepad2.left_bumper) {
             transfer.setPower(0.5);
-            gate.setPosition(0.9);
+            gate.setPosition(0.5);
             intake.setPower(0);
         } else {
             intake.setPower(0);
             transfer.setPower(0);
-            gate.setPosition(0.5);
+            gate.setPosition(0.9);
         }
+
+        Pose robotPose = follower.pose(); // returns a Pose object
+
+        if(gamepad1.b && !gamepadB){
+            Macro.turnToHive(robotPose, follower);
+        }
+        gamepadB = gamepad1.b;
 
         double rpm = (outtake.getVelocity() / 28) * 60;
 
 
-        Pose robotPose = follower.pose(); // returns a Pose object
         telemetry.addData("Robot X", robotPose.x());
         telemetry.addData("Robot Y", robotPose.y());
         telemetry.addData("Robot Heading", Math.toDegrees(robotPose.heading()));

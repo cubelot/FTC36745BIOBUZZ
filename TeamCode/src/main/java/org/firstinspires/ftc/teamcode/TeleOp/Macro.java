@@ -6,14 +6,13 @@ import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class Macro {
-    public static void turnToHive(Follower follower) {
-        Pose currentPose = follower.pose();
+    public static void turnToHive(Pose currentPose, Follower follower) {
         if(currentPose.y() > 72) {
-            double targetHeading = Math.atan2(84 - currentPose.y(), 60 - currentPose.x());
+            double targetHeading = 1 - (Math.atan2(88 - currentPose.y(), 58 - currentPose.x()));
             follower.hold(new Pose(currentPose.x(), currentPose.y(), targetHeading));
 
         } else if(currentPose.y() < 72) {
-            double targetHeading = Math.atan2(60 - currentPose.y(), 60 - currentPose.x());
+            double targetHeading = 1 - (Math.atan2(55 - currentPose.y(), 58 - currentPose.x()));
             follower.hold(new Pose(currentPose.x(), currentPose.y(), targetHeading));
         }
     }

@@ -151,15 +151,15 @@ public class MecanumTeleOp extends LinearOpMode {
             if (gamepad1.right_bumper) {
                 intake.setPower(1 * rev);
                 transfer.setPower(0.8 * rev);
-                gate.setPosition(0.5);
+                gate.setPosition(0.9);
             } else if (gamepad1.left_bumper) {
                 transfer.setPower(0.5);
-                gate.setPosition(0.9);
+                gate.setPosition(0.5);
                 intake.setPower(0);
             } else {
                     intake.setPower(0);
                     transfer.setPower(0);
-                    gate.setPosition(0.5);
+                    gate.setPosition(0.9);
             }
 
 

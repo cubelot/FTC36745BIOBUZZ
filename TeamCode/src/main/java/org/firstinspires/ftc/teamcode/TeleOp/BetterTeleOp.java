@@ -27,6 +27,7 @@ public class BetterTeleOp extends OpMode {
 
     boolean flower = false;
     boolean flowerToggle = false;
+    boolean gamepadB = false;
 
     @Override
     public void init() {
@@ -47,11 +48,11 @@ public class BetterTeleOp extends OpMode {
     @Override
     public void loop() {
 
-        //Driving
+        //Drivingadb
         DrivePowers powers = ManualDrive.fieldCentric(
                 -gamepad1.left_stick_y * mPower,
-                gamepad1.left_stick_x * mPower,
-                gamepad1.right_stick_x * mPower,
+                -gamepad1.left_stick_x * mPower * 1.1,
+                -gamepad1.right_stick_x * mPower,
                 follower.pose().heading()
         );
         ManualDrive.driveOrHold(follower, powers);
@@ -73,7 +74,7 @@ public class BetterTeleOp extends OpMode {
             outtake.setVelocity(900);
         }
         if (gamepad1.right_trigger_pressed) {
-            mPower = 0.5;
+            mPower = 0.4;
         } else {
             mPower = 1;
         }
@@ -106,21 +107,27 @@ public class BetterTeleOp extends OpMode {
         if (gamepad1.right_bumper) {
             intake.setPower(1 * rev);
             transfer.setPower(0.8 * rev);
-            gate.setPosition(0.5);
+            gate.setPosition(0.9);
         } else if (gamepad1.left_bumper) {
             transfer.setPower(0.5);
-            gate.setPosition(0.9);
+            gate.setPosition(0.5);
             intake.setPower(0);
         } else {
             intake.setPower(0);
             transfer.setPower(0);
-            gate.setPosition(0.5);
+            gate.setPosition(0.9);
         }
+
+        Pose robotPose = follower.pose(); // returns a Pose object
+
+        if(gamepad1.b && !gamepadB){
+            Macro.turnToHive(robotPose, follower);
+        }
+        gamepadB = gamepad1.b;
 
         double rpm = (outtake.getVelocity() / 28) * 60;
 
 
-        Pose robotPose = follower.pose(); // returns a Pose object
         telemetry.addData("Robot X", robotPose.x());
         telemetry.addData("Robot Y", robotPose.y());
         telemetry.addData("Robot Heading", Math.toDegrees(robotPose.heading()));
