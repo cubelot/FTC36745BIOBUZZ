@@ -1,345 +1,347 @@
 package org.firstinspires.ftc.teamcode.TeleOp;
 
-import com.pedropathing.drivetrain.DrivePowers;
-import com.pedropathing.follower.Follower;
-import com.pedropathing.follower.ManualDrive;
-import com.pedropathing.math.Pose;
+import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.hardware.lynx.LynxModule;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.teamcode.OpModeStorage;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
-import org.firstinspires.ftc.teamcode.pedro.Constants;
+import java.util.List;
 
-@TeleOp(name = "Saharshs Teleop")
-public class geminiTeleop extends OpMode {
+/**
+ * Controls (gamepad1)
+ *   Left stick ........ drive (forward / strafe)
+ *   Right stick X ..... turn
+ *   Right trigger ..... slow mode (hold)
+ *   Y ................. toggle field-centric / robot-centric
+ *   Options ........... zero field-centric heading (face the robot "forward" first)
+ *   Right bumper ...... intake
+ *   Left bumper ....... transfer
+ *   A ................. reverse intake / transfer (hold)
+ *   B ................. open gate (hold)
+ *   Left trigger ...... spin up outtake (hold). Controller rumbles when at speed.
+ *   D-pad up / down ... outtake target velocity +/- 20 ticks/s
+ */
+@TeleOp(name = "Saharsh TeleOp Test")
+public class geminiTeleop extends LinearOpMode {
 
-    private static final double SLOW_MODE_POWER     = 0.4;
-    private static final double FULL_POWER          = 1.0;
-    private static final double STRAFE_MULTIPLIER   = 1.1;   // compensates for weaker strafing
-    private static final double STICK_DEADBAND      = 0.05;
-    private static final double STICK_EXPO          = 0.4;   // 0 = linear, 1 = pure cubic
-    private static final double HEADING_RESET_DEG   = 0;     // heading assigned when pressing BACK
+    // ================= Tunables =================
+    // Input shaping
+    private static final double DEADZONE = 0.05;
+    private static final double EXPO = 0.5;            // 0 = linear, 1 = full cubic
+    private static final double STRAFE_MULT = 1.1;     // counteracts imperfect strafing
+    private static final double SLOW_MULT = 0.4;
 
-    private static final double TICKS_PER_REV       = 28;
-    private static final double IDLE_VELOCITY       = 900;   // ticks/sec
-    private static final double SHOOT_VELOCITY      = 1470;  // ticks/sec
-    private static final double SHOOT_TRIM_STEP     = 25;    // ticks/sec per D-pad press
-    private static final double SHOOT_TRIM_LIMIT    = 300;   // max +/- trim
-    private static final double READY_TOLERANCE     = 40;    // ticks/sec window counted as "at speed"
-    private static final double READY_SETTLE_MS     = 80;    // must stay in window this long
-    private static final boolean REQUIRE_READY_TO_FIRE = false;
+    // Slew rates, in "full power per second"
+    private static final double DRIVE_ACCEL = 6.0;     // speeding up
+    private static final double DRIVE_DECEL = 14.0;    // slowing down (kept snappy for control)
+    private static final double TURN_ACCEL = 10.0;
+    private static final double TURN_DECEL = 20.0;
 
-    private static final double FLYWHEEL_P          = 25;
-    private static final double FLYWHEEL_I          = 0;
-    private static final double FLYWHEEL_D          = 0;
-    private static final double F_SLOPE             = -1.13932;
-    private static final double F_INTERCEPT         = 28.46684;
+    // Outtake
+    private static final double OUTTAKE_START_VEL = 1440;  // ticks/s
+    private static final double OUTTAKE_VEL_STEP = 20;
+    private static final double OUTTAKE_READY_TOL = 40;    // ticks/s
+    private static final double OUTTAKE_TICKS_PER_REV = 28;
 
-    private static final double VOLT_SAMPLE_MS      = 100;   // how often we actually read the sensor
-    private static final double VOLT_FILTER_ALPHA   = 0.2;   // 0..1, higher = less smoothing
-    private static final double PIDF_UPDATE_STEP    = 0.05;  // only rewrite PIDF if volts moved this much
-    private static final double LOW_BATTERY_VOLTS   = 11.5;
+    // Voltage tiers for the PIDF sets (with hysteresis so they don't flap)
+    private static final double LOW_VOLT = 12.25;
+    private static final double HIGH_VOLT = 13.0;
+    private static final double VOLT_HYST = 0.1;
+    private static final double VOLT_CHECK_SEC = 0.5;
 
-    private static final double INTAKE_POWER        = 1.0;
-    private static final double TRANSFER_INTAKE_PWR = 0.8;
-    private static final double TRANSFER_FIRE_PWR   = 0.5;
-    private static final double GATE_CLOSED         = 0.9;
-    private static final double GATE_FIRE           = 0.5;
+    // Servo positions
+    private static final double GATE_OPEN = 0.2;
+    private static final double GATE_CLOSED = 0.5;
 
-    private static final double FLOWER_ON           = 0.4;
-    private static final double FLOWER_OFF          = 1.0;
+    // Mechanism powers
+    private static final double TRANSFER_POWER = 0.55;
+    // ============================================
 
-    private static final int    RUMBLE_MS           = 250;
+    // Drive
+    private DcMotorEx leftFront, rightFront, leftBack, rightBack;
 
-    private Follower follower;
+    // Mechanisms
     private DcMotorEx outtake;
-    private DcMotor intake;
-    private DcMotor transfer;
-    private VoltageSensor voltage;
+    private DcMotor intake, transfer;
+    private CRServo leftCr, rightCr;
     private Servo gate;
-    private Servo flower1;
 
-    // Edge detectors (fixes the old mismatched gamepad1/gamepad2 toggle bug)
-    private final Edge flowerEdge   = new Edge();
-    private final Edge macroEdge    = new Edge();
-    private final Edge headingEdge  = new Edge();
-    private final Edge trimUpEdge   = new Edge();
-    private final Edge trimDownEdge = new Edge();
-    private final Edge trimResetEdge = new Edge();
+    // Sensors
+    private VoltageSensor voltage;
+    private GoBildaPinpointDriver odo;
 
-    private boolean flowerOn = false;
+    // PIDF sets
+    private final PIDFCoefficients pidfMid = new PIDFCoefficients(44.5, 0, 0, 14.9469);
+    private final PIDFCoefficients pidfLow = new PIDFCoefficients(0, 0, 0, 15.5469);
+    private final PIDFCoefficients pidfHigh = new PIDFCoefficients(25.3, 0, 0, 14.65);
+    private int pidfTier = -1; // 0 = low, 1 = mid, 2 = high
 
-    private double shootTrim = 0;
-    private double lastTargetVelocity = Double.NaN;
-    private boolean flywheelReady = false;
-    private boolean wasReady = false;
+    // Command caches (avoid sending identical commands to the hub every loop)
+    private double lastLf = Double.NaN, lastRf = Double.NaN, lastLb = Double.NaN, lastRb = Double.NaN;
+    private double lastIntake = Double.NaN, lastTransfer = Double.NaN, lastCrLeft = Double.NaN, lastCrRight = Double.NaN;
+    private double lastGate = Double.NaN;
+    private double lastOuttakeCmd = Double.NaN;
 
-    private double volts = 12;
-    private double pidfAppliedAtVolts = Double.NaN;
-    private double feedForward = 0;
-
-    private double lastGatePos = Double.NaN;
-    private double lastFlowerPos = Double.NaN;
-
-    private final ElapsedTime loopTimer = new ElapsedTime();
-    private final ElapsedTime voltTimer = new ElapsedTime();
-    private final ElapsedTime readyTimer = new ElapsedTime();
-    private double loopMs = 0;
-
-    // lifecycle
+    // Slewed drive commands
+    private double cmdX = 0, cmdY = 0, cmdRx = 0;
 
     @Override
-    public void init() {
-        // Bulk caching: one hub read per loop instead of one per sensor call
-        for (LynxModule hub : hardwareMap.getAll(LynxModule.class)) {
-            hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
+    public void runOpMode() throws InterruptedException {
+        // ---- Bulk reads: one hub read per loop instead of one per sensor ----
+        List<LynxModule> hubs = hardwareMap.getAll(LynxModule.class);
+        for (LynxModule hub : hubs) {
+            hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
         }
 
-        follower = Constants.create(hardwareMap);
-
-        outtake  = hardwareMap.get(DcMotorEx.class, "Outtake");
-        intake   = hardwareMap.get(DcMotor.class, "Intake");
+        // ---- Hardware map ----
+        leftFront = hardwareMap.get(DcMotorEx.class, "lf");
+        rightFront = hardwareMap.get(DcMotorEx.class, "rf");
+        leftBack = hardwareMap.get(DcMotorEx.class, "lb");
+        rightBack = hardwareMap.get(DcMotorEx.class, "rb");
+        outtake = hardwareMap.get(DcMotorEx.class, "Outtake");
+        intake = hardwareMap.get(DcMotor.class, "Intake");
         transfer = hardwareMap.get(DcMotor.class, "Transfer");
-        voltage  = hardwareMap.get(VoltageSensor.class, "Control Hub");
-        gate     = hardwareMap.get(Servo.class, "gate");
-        flower1  = hardwareMap.get(Servo.class, "flower1");
+        leftCr = hardwareMap.get(CRServo.class, "left");
+        rightCr = hardwareMap.get(CRServo.class, "right");
+        gate = hardwareMap.get(Servo.class, "gate");
+        voltage = hardwareMap.get(VoltageSensor.class, "Control Hub");
 
+        odo = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
+        odo.setOffsets(1, -6, DistanceUnit.INCH);
+        odo.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
+        odo.setEncoderDirections(
+                GoBildaPinpointDriver.EncoderDirection.REVERSED,
+                GoBildaPinpointDriver.EncoderDirection.REVERSED);
+        odo.resetPosAndIMU();
+
+        // ---- Motor setup ----
+        leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        for (DcMotorEx m : new DcMotorEx[]{leftFront, rightFront, leftBack, rightBack}) {
+            m.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            m.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        }
         outtake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        outtake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT); // let the flywheel coast down
+        applyPidfForVoltage(voltage.getVoltage());
 
-        // Seed voltage + PIDF so the first loop is already compensated
-        volts = voltage.getVoltage();
-        applyFlywheelPidf();
-
-        telemetry.addLine("Initialized. Waiting for start.");
-        telemetry.addData("Auto end pose", OpModeStorage.autonomousEndPose == null ? "NONE (will use 0,0,0)" : "loaded");
-        telemetry.addData("Battery", "%.2f V", volts);
+        telemetry.setMsTransmissionInterval(50);
+        telemetry.addLine("Ready. Press START.");
         telemetry.update();
-    }
 
-    @Override
-    public void start() {
-        Pose startPose = OpModeStorage.autonomousEndPose;
-        follower.setPose(startPose != null ? startPose : new Pose(0, 0, 0));
+        waitForStart();
+        if (isStopRequested()) return;
 
-        loopTimer.reset();
-        voltTimer.reset();
-        readyTimer.reset();
-    }
+        // ---- State ----
+        ElapsedTime loopTimer = new ElapsedTime();
+        ElapsedTime voltTimer = new ElapsedTime();
+        double volts = voltage.getVoltage();
 
-    @Override
-    public void loop() {
-        loopMs = loopTimer.milliseconds();
-        loopTimer.reset();
+        double outtakeTarget = OUTTAKE_START_VEL;
+        boolean fieldCentric = true;
+        double headingOffset = 0;
 
-        updateVoltage();
-        handleDrive();
-        handleFlywheel();
-        handleIntakeTransferGate();
-        handleFlower();
-        handleMacros();
-        updateTelemetry();
-    }
+        boolean prevUp = false, prevDown = false, prevY = false, prevOptions = false;
+        boolean wasReady = false;
 
-    @Override
-    public void stop() {
-        outtake.setVelocity(0);
+        while (opModeIsActive()) {
+            // New bulk read for this loop
+            for (LynxModule hub : hubs) hub.clearBulkCache();
+
+            double dt = Math.max(loopTimer.seconds(), 1e-3);
+            loopTimer.reset();
+
+            // ---- Odometry ----
+            odo.update();
+            double rawHeading = odo.getHeading(AngleUnit.RADIANS);
+            double heading = normalizeAngle(rawHeading - headingOffset);
+
+            // ---- Voltage check (infrequent; PIDF writes are hub commands) ----
+            if (voltTimer.seconds() >= VOLT_CHECK_SEC) {
+                voltTimer.reset();
+                volts = voltage.getVoltage();
+                applyPidfForVoltage(volts);
+            }
+
+            // ---- Button edges ----
+            boolean up = gamepad1.dpad_up, down = gamepad1.dpad_down;
+            boolean yBtn = gamepad1.y, options = gamepad1.options;
+
+            if (up && !prevUp) outtakeTarget += OUTTAKE_VEL_STEP;
+            if (down && !prevDown) outtakeTarget -= OUTTAKE_VEL_STEP;
+            outtakeTarget = Range.clip(outtakeTarget, 0, 2400);
+            if (yBtn && !prevY) fieldCentric = !fieldCentric;
+            if (options && !prevOptions) headingOffset = rawHeading;
+
+            prevUp = up;
+            prevDown = down;
+            prevY = yBtn;
+            prevOptions = options;
+
+            // ---- Drive input shaping ----
+            double inY = shape(-gamepad1.left_stick_y);
+            double inX = shape(gamepad1.left_stick_x) * STRAFE_MULT;
+            double inRx = shape(gamepad1.right_stick_x);
+
+            if (fieldCentric) {
+                double cos = Math.cos(-heading);
+                double sin = Math.sin(-heading);
+                double rotX = inX * cos - inY * sin;
+                double rotY = inX * sin + inY * cos;
+                inX = rotX;
+                inY = rotY;
+            }
+
+            double speed = gamepad1.right_trigger_pressed ? SLOW_MULT : 1.0;
+            inX *= speed;
+            inY *= speed;
+            inRx *= speed;
+
+            // ---- Slew limiting (smooth accel, snappy decel) ----
+            cmdX = slew(cmdX, inX, DRIVE_ACCEL, DRIVE_DECEL, dt);
+            cmdY = slew(cmdY, inY, DRIVE_ACCEL, DRIVE_DECEL, dt);
+            cmdRx = slew(cmdRx, inRx, TURN_ACCEL, TURN_DECEL, dt);
+
+            double denom = Math.max(Math.abs(cmdY) + Math.abs(cmdX) + Math.abs(cmdRx), 1.0);
+            setDrive(
+                    (cmdY + cmdX + cmdRx) / denom,   // LF
+                    (cmdY - cmdX - cmdRx) / denom,   // RF
+                    (cmdY - cmdX + cmdRx) / denom,   // LB
+                    (cmdY + cmdX - cmdRx) / denom);  // RB
+
+            // ---- Mechanisms ----
+            int rev = gamepad1.a ? -1 : 1;
+
+            setIntake(gamepad1.right_bumper ? rev : 0,
+                    gamepad1.right_bumper ? rev : 0,
+                    gamepad1.right_bumper ? -rev : 0);
+
+            setTransfer(gamepad1.left_bumper ? TRANSFER_POWER * rev : 0);
+            setGate(gamepad1.b ? GATE_OPEN : GATE_CLOSED);
+
+            // ---- Outtake ----
+            boolean outtakeOn = gamepad1.left_trigger_pressed;
+            double outtakeVel = outtake.getVelocity();
+            if (outtakeOn) {
+                if (lastOuttakeCmd != outtakeTarget) {
+                    outtake.setVelocity(outtakeTarget);
+                    lastOuttakeCmd = outtakeTarget;
+                }
+            } else if (lastOuttakeCmd != 0) {
+                outtake.setPower(0);
+                lastOuttakeCmd = 0;
+            }
+
+            boolean ready = outtakeOn && Math.abs(outtakeVel - outtakeTarget) <= OUTTAKE_READY_TOL;
+            if (ready && !wasReady) gamepad1.rumble(200);
+            wasReady = ready;
+
+            double rpm = (outtakeVel / OUTTAKE_TICKS_PER_REV) * 60.0;
+
+            // ---- Telemetry ----
+            telemetry.addData("Loop (Hz)", "%.0f", 1.0 / dt);
+            telemetry.addData("Drive mode", fieldCentric ? "Field-centric" : "Robot-centric");
+            telemetry.addData("Slow mode", gamepad1.right_trigger_pressed);
+            telemetry.addData("Volts", "%.2f (PIDF tier %d)", volts, pidfTier);
+            telemetry.addData("Outtake target / actual", "%.0f / %.0f", outtakeTarget, outtakeVel);
+            telemetry.addData("Outtake RPM", "%.0f", rpm);
+            telemetry.addData("Outtake READY", ready);
+            telemetry.addData("x (in)", "%.2f", odo.getPosX(DistanceUnit.INCH));
+            telemetry.addData("y (in)", "%.2f", odo.getPosY(DistanceUnit.INCH));
+            telemetry.addData("Heading (deg)", "%.1f", Math.toDegrees(heading));
+            telemetry.update();
+        }
+
+        // Safe shutdown
+        setDrive(0, 0, 0, 0);
+        outtake.setPower(0);
         intake.setPower(0);
         transfer.setPower(0);
+        leftCr.setPower(0);
+        rightCr.setPower(0);
     }
 
-    // subsystems
+    // ================= Helpers =================
 
-    private void handleDrive() {
-        double power = gamepad1.right_trigger_pressed ? SLOW_MODE_POWER : FULL_POWER;
-
-        double forward = shape(-gamepad1.left_stick_y);
-        double strafe  = shape(-gamepad1.left_stick_x);
-        double turn    = shape(-gamepad1.right_stick_x);
-
-        Pose pose = follower.pose();
-
-        DrivePowers powers = ManualDrive.fieldCentric(
-                forward * power,
-                strafe * power * STRAFE_MULTIPLIER,
-                turn * power,
-                pose.heading()
-        );
-        ManualDrive.driveOrHold(follower, powers);
-        follower.update();
-
-        // Re-zero heading without losing X/Y
-        if (headingEdge.pressed(gamepad1.back)) {
-            Pose p = follower.pose();
-            follower.setPose(new Pose(p.x(), p.y(), Math.toRadians(HEADING_RESET_DEG)));
-        }
+    /** Deadzone (rescaled so output still reaches 1.0) plus an expo curve for fine low-speed control. */
+    private static double shape(double v) {
+        double a = Math.abs(v);
+        if (a < DEADZONE) return 0;
+        a = (a - DEADZONE) / (1.0 - DEADZONE);
+        a = (1.0 - EXPO) * a + EXPO * a * a * a;
+        return Math.copySign(a, v);
     }
 
-    private void handleFlywheel() {
-        // Shoot-speed trim
-        if (trimUpEdge.pressed(gamepad2.dpad_up)) {
-            shootTrim += SHOOT_TRIM_STEP;
-        }
-        if (trimDownEdge.pressed(gamepad2.dpad_down)) {
-            shootTrim -= SHOOT_TRIM_STEP;
-        }
-        if (trimResetEdge.pressed(gamepad2.dpad_right)) {
-            shootTrim = 0;
-        }
-        shootTrim = Range.clip(shootTrim, -SHOOT_TRIM_LIMIT, SHOOT_TRIM_LIMIT);
-
-        boolean shooting = gamepad2.left_trigger_pressed;
-        double target = shooting ? (SHOOT_VELOCITY + shootTrim) : IDLE_VELOCITY;
-
-        if (target != lastTargetVelocity) {
-            outtake.setVelocity(target);
-            lastTargetVelocity = target;
-        }
-
-        double measured = outtake.getVelocity();
-        boolean inWindow = Math.abs(measured - target) <= READY_TOLERANCE;
-        if (!inWindow) {
-            readyTimer.reset();
-        }
-        flywheelReady = inWindow && readyTimer.milliseconds() >= READY_SETTLE_MS;
-
-        // Rumble operator when we hit shoot speed
-        if (shooting && flywheelReady && !wasReady) {
-            gamepad2.rumble(RUMBLE_MS);
-        }
-        wasReady = shooting && flywheelReady;
+    /** Move current toward target, limited by accel (growing magnitude) or decel (shrinking). */
+    private static double slew(double current, double target, double accel, double decel, double dt) {
+        double rate = Math.abs(target) > Math.abs(current) ? accel : decel;
+        double step = rate * dt;
+        return current + Range.clip(target - current, -step, step);
     }
 
-    private void handleIntakeTransferGate() {
-        double rev = gamepad2.a ? -1 : 1;
-
-        if (gamepad2.right_bumper) {
-            // Intake
-            intake.setPower(INTAKE_POWER * rev);
-            transfer.setPower(TRANSFER_INTAKE_PWR * rev);
-            setGate(GATE_CLOSED);
-        } else if (gamepad2.left_bumper && canFire()) {
-            // Fire
-            intake.setPower(0);
-            transfer.setPower(TRANSFER_FIRE_PWR);
-            setGate(GATE_FIRE);
-        } else {
-            // Idle
-            intake.setPower(0);
-            transfer.setPower(0);
-            setGate(GATE_CLOSED);
-        }
+    private static double normalizeAngle(double a) {
+        while (a > Math.PI) a -= 2 * Math.PI;
+        while (a < -Math.PI) a += 2 * Math.PI;
+        return a;
     }
 
-    private void handleFlower() {
-        if (flowerEdge.pressed(gamepad2.y)) {
-            flowerOn = !flowerOn;
-        }
-        setFlower(flowerOn ? FLOWER_ON : FLOWER_OFF);
+    /** Only talk to the hub when a value actually changes. */
+    private static boolean changed(double a, double b) {
+        return Double.isNaN(a) || Math.abs(a - b) > 0.001;
     }
 
-    private void handleMacros() {
-        if (macroEdge.pressed(gamepad1.b)) {
-            Macro.turnToHive(follower.pose(), follower);
-        }
+    private void setDrive(double lf, double rf, double lb, double rb) {
+        if (changed(lastLf, lf)) { leftFront.setPower(lf); lastLf = lf; }
+        if (changed(lastRf, rf)) { rightFront.setPower(rf); lastRf = rf; }
+        if (changed(lastLb, lb)) { leftBack.setPower(lb); lastLb = lb; }
+        if (changed(lastRb, rb)) { rightBack.setPower(rb); lastRb = rb; }
     }
 
-    private void updateVoltage() {
-        if (voltTimer.milliseconds() >= VOLT_SAMPLE_MS) {
-            double raw = voltage.getVoltage();
-            volts += VOLT_FILTER_ALPHA * (raw - volts);
-            voltTimer.reset();
-        }
-
-        if (Double.isNaN(pidfAppliedAtVolts)
-                || Math.abs(volts - pidfAppliedAtVolts) >= PIDF_UPDATE_STEP) {
-            applyFlywheelPidf();
-        }
+    private void setIntake(double intakePower, double leftPower, double rightPower) {
+        if (changed(lastIntake, intakePower)) { intake.setPower(intakePower); lastIntake = intakePower; }
+        if (changed(lastCrLeft, leftPower)) { leftCr.setPower(leftPower); lastCrLeft = leftPower; }
+        if (changed(lastCrRight, rightPower)) { rightCr.setPower(rightPower); lastCrRight = rightPower; }
     }
 
-    private void applyFlywheelPidf() {
-        feedForward = Math.max(0, F_SLOPE * volts + F_INTERCEPT);
-        outtake.setPIDFCoefficients(
-                DcMotor.RunMode.RUN_USING_ENCODER,
-                new PIDFCoefficients(FLYWHEEL_P, FLYWHEEL_I, FLYWHEEL_D, feedForward)
-        );
-        pidfAppliedAtVolts = volts;
-    }
-
-    // helpers ig
-
-    private boolean canFire() {
-        return !REQUIRE_READY_TO_FIRE || flywheelReady || gamepad2.x;
+    private void setTransfer(double p) {
+        if (changed(lastTransfer, p)) { transfer.setPower(p); lastTransfer = p; }
     }
 
     private void setGate(double pos) {
-        if (pos != lastGatePos) {
-            gate.setPosition(pos);
-            lastGatePos = pos;
-        }
+        if (changed(lastGate, pos)) { gate.setPosition(pos); lastGate = pos; }
     }
 
-    private void setFlower(double pos) {
-        if (pos != lastFlowerPos) {
-            flower1.setPosition(pos);
-            lastFlowerPos = pos;
+    /** Picks the PIDF tier from battery voltage, with hysteresis; only writes on a tier change. */
+    private void applyPidfForVoltage(double v) {
+        int tier;
+        if (pidfTier == -1) {
+            tier = v <= LOW_VOLT ? 0 : (v >= HIGH_VOLT ? 2 : 1);
+        } else {
+            tier = pidfTier;
+            if (pidfTier == 1) {
+                if (v <= LOW_VOLT - VOLT_HYST) tier = 0;
+                else if (v >= HIGH_VOLT + VOLT_HYST) tier = 2;
+            } else if (pidfTier == 0 && v > LOW_VOLT + VOLT_HYST) {
+                tier = v >= HIGH_VOLT + VOLT_HYST ? 2 : 1;
+            } else if (pidfTier == 2 && v < HIGH_VOLT - VOLT_HYST) {
+                tier = v <= LOW_VOLT - VOLT_HYST ? 0 : 1;
+            }
         }
-    }
-
-    private static double shape(double v) {
-        double a = Math.abs(v);
-        if (a < STICK_DEADBAND) return 0;
-        double s = (a - STICK_DEADBAND) / (1 - STICK_DEADBAND);
-        double curved = STICK_EXPO * s * s * s + (1 - STICK_EXPO) * s;
-        return Math.copySign(curved, v);
-    }
-
-    private static class Edge {
-        private boolean last = false;
-
-        boolean pressed(boolean now) {
-            boolean result = now && !last;
-            last = now;
-            return result;
-        }
-    }
-
-   // telemetry
-    private void updateTelemetry() {
-        Pose pose = follower.pose();
-        double velocity = outtake.getVelocity();
-        double rpm = (velocity / TICKS_PER_REV) * 60;
-        double targetRpm = (lastTargetVelocity / TICKS_PER_REV) * 60;
-
-        if (volts < LOW_BATTERY_VOLTS) {
-            telemetry.addLine("!!! LOW BATTERY !!!");
-        }
-
-        telemetry.addLine("--- Flywheel ---");
-        telemetry.addData("Status", flywheelReady ? "READY" : "spinning...");
-        telemetry.addData("RPM / Target", "%.0f / %.0f", rpm, targetRpm);
-        telemetry.addData("Velocity (ticks/s)", "%.0f", velocity);
-        telemetry.addData("Shoot trim", "%+.0f", shootTrim);
-        telemetry.addData("Feedforward", "%.3f", feedForward);
-
-        telemetry.addLine("--- Robot ---");
-        telemetry.addData("X", "%.2f", pose.x());
-        telemetry.addData("Y", "%.2f", pose.y());
-        telemetry.addData("Heading (deg)", "%.1f", Math.toDegrees(pose.heading()));
-        telemetry.addData("Slow mode", gamepad1.right_trigger_pressed);
-        telemetry.addData("Flower", flowerOn ? "ON" : "OFF");
-
-        telemetry.addLine("--- System ---");
-        telemetry.addData("Battery", "%.2f V", volts);
-        telemetry.addData("Loop (ms)", "%.1f", loopMs);
-        telemetry.update();
+        if (tier == pidfTier) return;
+        pidfTier = tier;
+        PIDFCoefficients c = tier == 0 ? pidfLow : (tier == 2 ? pidfHigh : pidfMid);
+        outtake.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, c);
     }
 }
