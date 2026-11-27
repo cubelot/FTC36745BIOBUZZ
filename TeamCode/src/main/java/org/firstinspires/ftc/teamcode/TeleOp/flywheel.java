@@ -28,12 +28,12 @@ public class flywheel extends OpMode {
 
     public DcMotor intake;
 
-    double transferPower = 0.55;
+    double transferPower = 0.50;
     /**
      * Target velocity presets in encoder ticks per second.
      */
-    double highVelocity = 1480;
-    double lowVelocity = 800;
+    double highVelocity = 1470;
+    double lowVelocity = 900;
 
     /**
      * Currently active target velocity preset.

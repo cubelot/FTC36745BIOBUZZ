@@ -18,6 +18,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.OpModeStorage;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 
 import static com.pedropathing.ivy.Scheduler.schedule;
@@ -212,7 +213,7 @@ public class Comp2AutonRP extends OpMode {
         if (outtake != null) outtake.setPower(0);
         if (intake != null) intake.setPower(0);
         if (transfer != null) transfer.setPower(0);
-
+        OpModeStorage.autonomousEndPose = follower.pose();
         }
 
     public Command intakeGarden() {

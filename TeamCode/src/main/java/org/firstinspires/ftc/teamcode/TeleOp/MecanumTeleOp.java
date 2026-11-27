@@ -34,7 +34,6 @@ public class MecanumTeleOp extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-
         leftFront = hardwareMap.get(DcMotor.class, "lf");
         rightFront = hardwareMap.get(DcMotor.class, "rf");
         leftBack = hardwareMap.get(DcMotor.class, "lb");
@@ -45,7 +44,7 @@ public class MecanumTeleOp extends LinearOpMode {
         voltage = hardwareMap.get(VoltageSensor.class, "Control Hub");
         gate = hardwareMap.get(Servo.class, "gate");
         flower1 = hardwareMap.get(Servo.class, "flower1");
-        flower2 = hardwareMap.get(Servo.class, "flower2");
+//        flower2 = hardwareMap.get(Servo.class, "flower2");
         odo = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
         odo.setOffsets(1, -6, DistanceUnit.INCH);
         odo.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
@@ -61,8 +60,8 @@ public class MecanumTeleOp extends LinearOpMode {
         transfer.setDirection(DcMotorSimple.Direction.FORWARD);
         outtake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        PIDFCoefficients pidfCoefficients1 = new PIDFCoefficients(30, 0, 0, 13.8);
-        outtake.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients1);
+//        PIDFCoefficients pidfCoefficients1 = new PIDFCoefficients(30, 0, 0, 13.8);
+//        outtake.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients1);
 
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -112,27 +111,27 @@ public class MecanumTeleOp extends LinearOpMode {
 
             // Read voltage every loop (it was only read once before)
             double volts = voltage.getVoltage();
-
+            //linearly
+            outtake.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(25, 0 ,0, -1.13932*volts + 28.46684));
+            //powerly
+//            outtake.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(25, 0 ,0, 208.95938 * Math.pow(volts,-1.06414)));
             // ---- Outtake / slow mode ----
             if (gamepad1.left_trigger_pressed) {
-                outtake.setVelocity(1480);
+                outtake.setVelocity(1470);
             } else {
-                outtake.setVelocity(800);
+                outtake.setVelocity(900);
             }
             if (gamepad1.right_trigger_pressed) {
-                mPower = 0.4;
+                mPower = 0.5;
             } else {
                 mPower = 1;
             }
 
             /*
             controls:
-            A: reverse mode
-            right bumper: intake
-            b: open gate
-            left bumper: transfer
-            Left Trigger: Outtake only
-            Right Trigger: slow drive
+            A: reverse
+            Y: Flower
+
              */
             rev = gamepad1.a ? -1 : 1;
             if(gamepad1.y && !flower){
@@ -142,26 +141,31 @@ public class MecanumTeleOp extends LinearOpMode {
             if (flowerToggle) {
 //
                 flower1.setPosition(0.4);
-                flower2.setPosition(0.6);
+//                flower2.setPosition(0.6);
 
             } else   {
                 flower1.setPosition(1);
-                flower2.setPosition(0);
+//                flower2.setPosition(0);
             }
             flower = gamepad1.y;
             if (gamepad1.right_bumper) {
                 intake.setPower(1 * rev);
-            } else {
+                transfer.setPower(0.8 * rev);
+                gate.setPosition(0.5);
+            } else if (gamepad1.left_bumper) {
+                transfer.setPower(0.5);
+                gate.setPosition(0.9);
                 intake.setPower(0);
-            }
-
-            gate.setPosition(gamepad1.b ? 0.5 : 0.8);
-
-            if (gamepad1.left_bumper) {
-                transfer.setPower(0.5 * rev);
             } else {
-                transfer.setPower(0);
+                    intake.setPower(0);
+                    transfer.setPower(0);
+                    gate.setPosition(0.5);
             }
+
+
+//            gate.setPosition(gamepad1.b ? 0.5 : 0.9);
+
+
 
             double rpm = (outtake.getVelocity() / 28) * 60;
 

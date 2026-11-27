@@ -23,6 +23,8 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.teamcode.OpModeStorage;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 
 
@@ -269,7 +271,7 @@ public class Comp2Auton extends OpMode {
         if (intake != null) intake.setPower(0);
         if (transfer != null) transfer.setPower(0);
 
-
+        OpModeStorage.autonomousEndPose = follower.pose();
     }
 
 
