@@ -1,4 +1,3 @@
-
 package org.firstinspires.ftc.teamcode.Auton;
 
 import com.pedropathing.api.Paths;
@@ -16,7 +15,6 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.OpModeStorage;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
@@ -30,11 +28,8 @@ import static com.pedropathing.ivy.pedro.PedroCommands.follow;
 
 
 
-
-
-
-@Autonomous(name = "Comp 2 AutonRP")
-public class Comp2AutonRP extends OpMode {
+@Autonomous(name = "Comp2AutonUnder")
+public class Comp2AutonUnder extends OpMode {
 
     private Follower follower;
 
@@ -54,74 +49,49 @@ public class Comp2AutonRP extends OpMode {
 
 
 
-
-
-
     private final PoseFactory poseFactory = PoseFactory.degrees();
 
-    // Starting and destination poses
-    private final Pose shoot1 = poseFactory.of(60, 9.1, 270);
-
-    private final Pose point1 = poseFactory.of(10.75, 46.75, 180);
-
-    private final Pose point1Control1 =
-            poseFactory.of(16.75, 16.75, 0);
-
-    private final Pose point1Control2 =
-            poseFactory.of(25.75, 52.75, 0);
-
-    private final Pose shoot2Pose =
-            poseFactory.of(60, 132, 90);
-
-    private final Pose garden2shoot2Control1 =
-            poseFactory.of(43.75, 40.75, 0);
-
-    private final Pose garden2shoot2Control2 =
-            poseFactory.of(0, 103.75, 0);
-
-    private final Pose garden2shoot2Control3 =
-            poseFactory.of(55.75, 100.75, 0);
-
-    private final Pose flower1Pose =
-            poseFactory.of(46.75, 130.75, 90);
-
-    private final Pose shoot2flower1Control1 =
-            poseFactory.of(54, 96, 0);
-
-    private final Pose flower1shoot2Control1 =
-            poseFactory.of(54, 96, 0);
-
-    private final Pose parkPose =
-            poseFactory.of(12, 120, 90);
-
-    private final Pose parkControl1 =
-            poseFactory.of(44, 113, 0);
+    private final Pose shoottogarden = poseFactory.of(60, 9.1, 270);
+    private final Pose shoot1Flower1 = poseFactory.of(10.75, 46.75, 180);
+    private final Pose shoot1Flower1Control1 = poseFactory.of(16.75, 16.75, 0);
+    private final Pose shoot1Flower1Control2 = poseFactory.of(25.75, 52.75, 0);
+    private final Pose flower1shoot2Start = poseFactory.of(10.75, 46.75, 180);
+    private final Pose flower1shoot2 = poseFactory.of(60, 132, 90);
+    private final Pose flower1shoot2Control1 = poseFactory.of(43.75, 40.75, 0);
+    private final Pose flower1shoot2Control2 = poseFactory.of(0, 103.75, 0);
+    private final Pose flower1shoot2Control3 = poseFactory.of(55.75, 100.75, 0);
+    private final Pose shoot2flower2 = poseFactory.of(46.75, 130.75, 90);
+    private final Pose shoot2flower2Control1 = poseFactory.of(54, 96, 0);
+    private final Pose flower2shoot2 = poseFactory.of(60, 132, 90);
+    private final Pose flower2shoot2Control1 = poseFactory.of(54, 96, 0);
+    private final Pose shoot2park = poseFactory.of(12, 120, 90);
+    private final Pose shoot2parkControl1 = poseFactory.of(44, 113, 0);
 
 
-    // Autonomous paths
+
     private final AutonPaths paths = new AutonPaths();
 
 
     public class AutonPaths {
 
-        public Path path1() {
-            return Paths.curve(shoot1, point1Control1, point1Control2, point1).linear(shoot1, point1);
-        }
-
-        public Path garden2shoot2() {
-            return Paths.curve(point1, garden2shoot2Control1, garden2shoot2Control2, garden2shoot2Control3, shoot2Pose).linear(point1, shoot2Pose);
-        }
-
-        public Path shoot2flower1() {
-            return Paths.curve(shoot2Pose, shoot2flower1Control1, flower1Pose).constant(flower1Pose);
+        public Path shoot1Flower1() {
+            return Paths.curve(shoottogarden, shoot1Flower1Control1, shoot1Flower1Control2, shoot1Flower1).linear(shoottogarden, shoot1Flower1);
         }
 
         public Path flower1shoot2() {
-            return Paths.curve(flower1Pose, flower1shoot2Control1, shoot2Pose).constant(shoot2Pose);
+            return Paths.curve(flower1shoot2Start, flower1shoot2Control1, flower1shoot2Control2, flower1shoot2Control3, flower1shoot2).linear(flower1shoot2Start, flower1shoot2);
         }
 
-        public Path path5() {
-            return Paths.curve(shoot2Pose, parkControl1, parkPose).constant(parkPose);
+        public Path shoot2flower2() {
+            return Paths.curve(flower1shoot2, shoot2flower2Control1, shoot2flower2).constant(shoot2flower2);
+        }
+
+        public Path flower2shoot2() {
+            return Paths.curve(shoot2flower2, flower2shoot2Control1, flower2shoot2).constant(flower2shoot2);
+        }
+
+        public Path shoot2park() {
+            return Paths.curve(flower2shoot2, shoot2parkControl1, shoot2park).constant(shoot2park);
         }
     }
 
@@ -129,7 +99,6 @@ public class Comp2AutonRP extends OpMode {
     @Override
     public void init() {
 
-        // Hardware initialization
         outtake = hardwareMap.get(DcMotor.class, "Outtake");
         intake = hardwareMap.get(DcMotor.class, "Intake");
         transfer = hardwareMap.get(DcMotor.class, "Transfer");
@@ -154,7 +123,7 @@ public class Comp2AutonRP extends OpMode {
 
         follower = Constants.create(hardwareMap);
 
-        follower.setPose(shoot1);
+        follower.setPose(shoottogarden);
 
         Scheduler.reset();
 
@@ -169,21 +138,23 @@ public class Comp2AutonRP extends OpMode {
 
                         shoot(),
 
-                        follow(follower, paths.path1()),
-
-                        intakeGarden(),
-
-                        follow(follower, paths.garden2shoot2()),
-
-                        shoot(),
-
-                        follow(follower, paths.shoot2flower1()),
+                        follow(follower, paths.shoot1Flower1()),
 
                         flowerIntake(),
 
                         follow(follower, paths.flower1shoot2()),
 
-                        follow(follower, paths.path5())
+                        shoot(),
+
+                        follow(follower, paths.shoot2flower2()),
+
+                        flowerIntake(),
+
+                        follow(follower, paths.flower2shoot2()),
+
+                        shoot(),
+
+                        follow(follower, paths.shoot2park())
 
                 )
         );
@@ -193,13 +164,10 @@ public class Comp2AutonRP extends OpMode {
 
     @Override
     public void loop() {
-
         follower.update();
-
         Scheduler.execute();
 
         telemetry.addData("Voltage", voltage.getVoltage());
-
         telemetry.update();
 
     }
@@ -216,24 +184,21 @@ public class Comp2AutonRP extends OpMode {
         OpModeStorage.autonomousEndPose = follower.pose();
         }
 
-    public Command intakeGarden() {
-
+    public Command flowerIntake() {
         return sequential(
-
                 instant(() -> {
+                    flowerServo1.setPosition(0.4);
+                    flowerServo2.setPosition(0.6);
                     intake.setPower(1);
                 }),
-
                 waitMs(5000),
-
                 instant(() -> {
-                    intake.setPower(-1);
+                    intake.setPower(0);
+                    flowerServo1.setPosition(1);
+                    flowerServo2.setPosition(0);
                 })
-
         );
-
     }
-
 
 
     public Command shoot() {
@@ -263,28 +228,5 @@ public class Comp2AutonRP extends OpMode {
 
     }
 
-
-
-    public Command flowerIntake() {
-
-        return sequential(
-
-                instant(() -> flowerServo1.setPosition(0.4)),
-
-                instant(() -> flowerServo2.setPosition(0.6)),
-
-                instant(() -> intake.setPower(1)),
-
-                waitMs(5000),
-
-                instant(() -> {
-                    intake.setPower(0);
-                    flowerServo1.setPosition(1);
-                    flowerServo2.setPosition(0);
-                })
-
-        );
-
-    }
 
 }
