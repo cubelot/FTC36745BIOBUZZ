@@ -34,7 +34,7 @@ import java.util.List;
  *   D-pad up / down ... outtake target velocity +/- 20 ticks/s
  */
 @TeleOp(name = "Saharsh TeleOp Test")
-public class geminiTeleop extends LinearOpMode {
+public class saharshThingy extends LinearOpMode {
 
     // ================= Tunables =================
     // Input shaping
