@@ -13,7 +13,7 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.teamcode.OpModeStorage;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
-@TeleOp(name = "Better TeleOp")
+@TeleOp(name = "MecanumTeleOp")
 public class BetterTeleOp extends OpMode {
     private Follower follower;
     DcMotorEx outtake;

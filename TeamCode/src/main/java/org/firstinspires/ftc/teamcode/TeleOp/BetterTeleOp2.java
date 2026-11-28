@@ -14,7 +14,7 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 import org.firstinspires.ftc.teamcode.OpModeStorage;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 
-@TeleOp(name = "Better TeleOp2")
+@TeleOp(name = "MecanumTeleOp2Controller")
 public class BetterTeleOp2 extends OpMode {
     private Follower follower;
     DcMotorEx outtake;
@@ -28,6 +28,7 @@ public class BetterTeleOp2 extends OpMode {
     boolean gamepadB = false;
     boolean flower = false;
     boolean flowerToggle = false;
+
 
     @Override
     public void init() {
@@ -47,6 +48,8 @@ public class BetterTeleOp2 extends OpMode {
 
     @Override
     public void loop() {
+
+
 
         //Driving
         DrivePowers powers = ManualDrive.fieldCentric(
