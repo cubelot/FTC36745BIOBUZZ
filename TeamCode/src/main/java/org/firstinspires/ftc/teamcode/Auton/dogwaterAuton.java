@@ -18,7 +18,6 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
@@ -33,8 +32,7 @@ import org.firstinspires.ftc.teamcode.pedro.Constants;
 
 
 @Autonomous(name = "Comp 2 Auton")
-//built by anay
-public class Comp2Auton extends OpMode {
+public class dogwaterAuton extends OpMode {
     private Follower follower;
     private final PoseFactory p = PoseFactory.degrees();
     private final ElapsedTime shootTime = new ElapsedTime();
