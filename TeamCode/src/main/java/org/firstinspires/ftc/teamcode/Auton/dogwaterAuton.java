@@ -31,7 +31,7 @@ import org.firstinspires.ftc.teamcode.pedro.Constants;
 
 
 
-@Autonomous(name = "Comp 2 Auton")
+@Autonomous(name = "ba Auton")
 public class dogwaterAuton extends OpMode {
     private Follower follower;
     private final PoseFactory p = PoseFactory.degrees();
